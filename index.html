@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TeamHub — HR Dashboard</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome ikonkalar -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    /* ===== ASOSIY STILLAR ===== */
+    * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
+
+    body { background: #0f1117; color: #e2e8f0; margin: 0; min-height: 100vh; }
+
+    /* Sidebar navigatsiya tugmasi */
+    .nav-btn {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 10px; cursor: pointer;
+      font-size: 13.5px; font-weight: 500; color: #94a3b8;
+      transition: all 0.2s ease; width: 100%; border: none; background: none;
+      text-align: left;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.06); color: #e2e8f0; }
+    .nav-btn.active { background: rgba(52,211,153,0.12); color: #34d399; }
+    .nav-btn.active i { color: #34d399; }
+    .nav-btn i { width: 18px; text-align: center; font-size: 14px; color: #64748b; transition: color 0.2s; }
+    .nav-btn:hover i { color: #94a3b8; }
+
+    /* Kontent bo'limlari (yashirin) */
+    .content-section { display: none; }
+    .content-section.active { display: block; }
+
+    /* Karta */
+    .card {
+      background: #1a1f2e; border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px; padding: 20px;
+    }
+
+    /* KPI doira (SVG) */
+    .ring-container { position: relative; width: 80px; height: 80px; }
+    .ring-container svg { transform: rotate(-90deg); }
+    .ring-bg { fill: none; stroke: rgba(255,255,255,0.08); }
+    .ring-fill { fill: none; stroke-linecap: round; transition: stroke-dashoffset 0.6s ease; }
+    .ring-text {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      text-align: center; pointer-events: none;
+    }
+
+    /* Grafik ustun (bar chart) */
+    .bar-col { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .bar-wrap { width: 28px; height: 80px; background: rgba(255,255,255,0.05); border-radius: 6px; position: relative; overflow: hidden; display: flex; align-items: flex-end; }
+    .bar-fill { width: 100%; border-radius: 6px; transition: height 0.5s ease; }
+
+    /* Chiziqli grafik (SVG line chart) */
+    .chart-area { width: 100%; overflow: hidden; }
+
+    /* Status badge */
+    .badge {
+      padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    }
+    .badge-green { background: rgba(52,211,153,0.15); color: #34d399; }
+    .badge-blue { background: rgba(96,165,250,0.15); color: #60a5fa; }
+    .badge-yellow { background: rgba(251,191,36,0.15); color: #fbbf24; }
+    .badge-red { background: rgba(248,113,113,0.15); color: #f87171; }
+    .badge-purple { background: rgba(167,139,250,0.15); color: #a78bfa; }
+
+    /* Jadval qatori */
+    .table-row:hover { background: rgba(255,255,255,0.03); }
+
+    /* Tugmalar */
+    .btn-approve {
+      background: rgba(52,211,153,0.15); color: #34d399;
+      border: 1px solid rgba(52,211,153,0.3); padding: 4px 12px;
+      border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-approve:hover { background: rgba(52,211,153,0.3); }
+    .btn-reject {
+      background: rgba(248,113,113,0.1); color: #f87171;
+      border: 1px solid rgba(248,113,113,0.3); padding: 4px 12px;
+      border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-reject:hover { background: rgba(248,113,113,0.25); }
+
+    /* Kalendarya hujayra */
+    .cal-cell { min-height: 82px; padding: 6px; border-radius: 10px; background: #1a1f2e; border: 1px solid rgba(255,255,255,0.05); }
+    .cal-event { font-size: 10px; padding: 2px 5px; border-radius: 4px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Qidiruv inputi */
+    .search-input {
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; padding: 8px 14px 8px 36px; color: #e2e8f0;
+      font-size: 13px; outline: none; width: 260px; transition: border 0.2s;
+    }
+    .search-input:focus { border-color: rgba(52,211,153,0.4); }
+    .search-input::placeholder { color: #4b5563; }
+
+    /* Scroll */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+    /* Performance grafigi (chiziqli SVG) */
+    .perf-chart { width: 100%; height: 130px; }
+
+    /* Sidebar */
+    .sidebar { width: 240px; min-width: 240px; }
+
+    /* Asosiy kontent */
+    .main-content { flex: 1; overflow-y: auto; max-height: 100vh; }
+
+    /* Avatar */
+    .avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #34d399, #3b82f6);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 13px; color: #0f1117; flex-shrink: 0;
+    }
+    .avatar-lg {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: linear-gradient(135deg, #a78bfa, #3b82f6);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 22px; color: #fff; flex-shrink: 0;
+    }
+  </style>
+</head>
+<body class="flex" style="background:#0f1117;">
+
+<!-- ============================================================
+     CHAP SIDEBAR
+     ============================================================ -->
+<aside class="sidebar flex flex-col h-screen sticky top-0 border-r" style="border-color:rgba(255,255,255,0.07); background:#13161f; padding:20px 12px;">
+
+  <!-- Logo -->
+  <div class="flex items-center gap-3 px-2 mb-8">
+    <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#34d399,#059669);">
+      <i class="fa-solid fa-people-roof text-white text-xs"></i>
+    </div>
+    <span class="font-bold text-base text-white tracking-wide">TeamHub</span>
+  </div>
+
+  <!-- Navigatsiya menyusi -->
+  <nav class="flex flex-col gap-1 flex-1">
+    <p class="text-xs font-semibold px-3 mb-1" style="color:#374151; letter-spacing:.08em;">ASOSIY MENYU</p>
+
+    <button class="nav-btn active" data-section="dashboard">
+      <i class="fa-solid fa-gauge-high"></i> Dashboard
+    </button>
+    <button class="nav-btn" data-section="inbox">
+      <i class="fa-solid fa-inbox"></i> Inbox
+      <span class="ml-auto text-xs font-bold rounded-full px-2 py-0.5" style="background:rgba(52,211,153,0.2);color:#34d399;">5</span>
+    </button>
+    <button class="nav-btn" data-section="calendar">
+      <i class="fa-solid fa-calendar-days"></i> Kalendar
+    </button>
+    <button class="nav-btn" data-section="employees">
+      <i class="fa-solid fa-users"></i> Xodimlar
+    </button>
+    <button class="nav-btn" data-section="attendance">
+      <i class="fa-solid fa-fingerprint"></i> Davomat
+    </button>
+    <button class="nav-btn" data-section="performance">
+      <i class="fa-solid fa-chart-line"></i> Samaradorlik
+    </button>
+    <button class="nav-btn" data-section="payroll">
+      <i class="fa-solid fa-money-bill-wave"></i> Maosh
+    </button>
+    <button class="nav-btn" data-section="leave">
+      <i class="fa-solid fa-umbrella-beach"></i> Ta'til Boshqaruvi
+    </button>
+    <button class="nav-btn" data-section="recruitment">
+      <i class="fa-solid fa-user-plus"></i> Ishga Qabul
+    </button>
+  </nav>
+
+  <!-- Sidebar banner reklama -->
+  <div class="rounded-xl p-4 mt-4" style="background:linear-gradient(135deg,#1a2f23,#0f2018); border:1px solid rgba(52,211,153,0.2);">
+    <div class="w-8 h-8 rounded-lg flex items-center justify-center mb-3" style="background:rgba(52,211,153,0.15);">
+      <i class="fa-solid fa-rocket" style="color:#34d399; font-size:14px;"></i>
+    </div>
+    <p class="text-white font-semibold text-xs mb-1">HR Tizimingizni</p>
+    <p class="text-white font-bold text-sm mb-2">Yangi Bosqichga</p>
+    <p class="text-xs mb-3" style="color:#6b7280;">Barcha HR jarayonlarini avtomatlashtiring va samaradorlikni 3x oshiring.</p>
+    <button class="w-full py-2 rounded-lg text-xs font-bold text-white transition-all hover:opacity-90"
+      style="background:linear-gradient(135deg,#34d399,#059669);">
+      Batafsil Ko'rish →
+    </button>
+  </div>
+</aside>
+
+<!-- ============================================================
+     O'NG ASOSIY KONTENT
+     ============================================================ -->
+<main class="main-content flex flex-col">
+
+  <!-- TOP NAVBAR -->
+  <header class="sticky top-0 z-10 flex items-center justify-between px-8 py-4 border-b"
+    style="background:rgba(19,22,31,0.95); border-color:rgba(255,255,255,0.07); backdrop-filter:blur(12px);">
+
+    <!-- Qidiruv -->
+    <div class="relative">
+      <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs" style="color:#4b5563;"></i>
+      <input type="text" class="search-input" placeholder="Xodim, hujjat yoki bo'lim qidiring…" />
+    </div>
+
+    <!-- O'ng: Bildirishnoma + Profil -->
+    <div class="flex items-center gap-4">
+      <!-- Bildirishnomalar -->
+      <button class="relative w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:bg-white/5"
+        style="border:1px solid rgba(255,255,255,0.08);">
+        <i class="fa-solid fa-bell text-sm" style="color:#94a3b8;"></i>
+        <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style="background:#34d399;"></span>
+      </button>
+
+      <!-- Sozlamalar -->
+      <button class="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:bg-white/5"
+        style="border:1px solid rgba(255,255,255,0.08);">
+        <i class="fa-solid fa-gear text-sm" style="color:#94a3b8;"></i>
+      </button>
+
+      <!-- Divider -->
+      <div class="w-px h-7" style="background:rgba(255,255,255,0.1);"></div>
+
+      <!-- Profil -->
+      <div class="flex items-center gap-2.5 cursor-pointer">
+        <div class="avatar"><span>DL</span></div>
+        <div>
+          <p class="text-sm font-semibold text-white leading-tight">Davis Levin</p>
+          <p class="text-xs" style="color:#6b7280;">HR Menejeri</p>
+        </div>
+        <i class="fa-solid fa-chevron-down text-xs ml-1" style="color:#6b7280;"></i>
+      </div>
+    </div>
+  </header>
+
+  <!-- KONTENT MAYDONLARI -->
+  <div class="p-8 flex-1">
+
+    <!-- ====================================================
+         DASHBOARD BO'LIMI
+         ==================================================== -->
+    <section id="section-dashboard" class="content-section active">
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold text-white">Xush kelibsiz, Davis! 👋</h1>
+        <p class="text-sm mt-1" style="color:#6b7280;">Bugun — <span id="today-date"></span></p>
+      </div>
+
+      <!-- KPI kartalar -->
+      <div class="grid grid-cols-4 gap-5 mb-6">
+        <div class="card">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-xs font-semibold" style="color:#6b7280;">JAMI XODIMLAR</p>
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:rgba(96,165,250,0.15);">
+              <i class="fa-solid fa-users text-xs" style="color:#60a5fa;"></i>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-white">248</p>
+          <p class="text-xs mt-1" style="color:#34d399;"><i class="fa-solid fa-arrow-up text-xs mr-1"></i>+12 bu oy</p>
+        </div>
+
+        <div class="card">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-xs font-semibold" style="color:#6b7280;">YANGI QABULLAR</p>
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:rgba(52,211,153,0.15);">
+              <i class="fa-solid fa-user-plus text-xs" style="color:#34d399;"></i>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-white">18</p>
+          <p class="text-xs mt-1" style="color:#34d399;"><i class="fa-solid fa-arrow-up text-xs mr-1"></i>+3 o'tgan oyga nisbatan</p>
+        </div>
+
+        <div class="card">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-xs font-semibold" style="color:#6b7280;">OCHIQ LAVOZIMLAR</p>
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:rgba(251,191,36,0.15);">
+              <i class="fa-solid fa-briefcase text-xs" style="color:#fbbf24;"></i>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-white">34</p>
+          <p class="text-xs mt-1" style="color:#fbbf24;"><i class="fa-solid fa-clock text-xs mr-1"></i>8 ta shoshilinch</p>
+        </div>
+
+        <div class="card">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-xs font-semibold" style="color:#6b7280;">DAVOMAT DARAJASI</p>
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:rgba(167,139,250,0.15);">
+              <i class="fa-solid fa-chart-pie text-xs" style="color:#a78bfa;"></i>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-white">94.2%</p>
+          <p class="text-xs mt-1" style="color:#34d399;"><i class="fa-solid fa-arrow-up text-xs mr-1"></i>+1.8% o'tgan haftadan</p>
+        </div>
+      </div>
+
+      <!-- Grafik va So'nggi Faoliyat -->
+      <div class="grid grid-cols-3 gap-5 mb-6">
+        <!-- Oylik yollash grafigi -->
+        <div class="card col-span-2">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <p class="font-semibold text-white">Oylik Yollash Ko'rsatkichi</p>
+              <p class="text-xs mt-0.5" style="color:#6b7280;">2024 yil uchun yangi xodimlar soni</p>
+            </div>
+            <span class="badge badge-green">2024</span>
+          </div>
+          <!-- Ustunli grafik -->
+          <div class="flex items-end gap-3 h-28">
+            <div class="bar-col flex-1"><div class="bar-wrap"><div class="bar-fill" style="height:55%;background:linear-gradient(to top,#3b82f6,#60a5fa);"></div></div><p class="text-xs" style="color:#4b5563;">Yan</p></div>
+            <div class="bar-col flex-1"><div class="bar-wrap"><div class="bar-fill" style="height:70%;background:linear-gradient(to top,#3b82f6,#60a5fa);"></div></div><p class="text-xs" style="color:#4b5563;">Fev</p></div>
+            <div class="bar-col flex-1"><div class="bar-wrap"><div class="bar-fill" style="height:45%;background:linear-gradient(to top,#3b82f6,#60a5fa);"></div></div><p class="text-xs" style="color:#4b5563;">Mar</p></div>
+            <div class="bar-col flex-1"><div class="bar-wrap"><div class="bar-fill" style="height:85%;background:linear-gradient(to top,#34d399,#059669);"></div></div><p class="text-xs" style="color:#4b5563;">Apr</p></div>
+            <div class="bar-col flex-1"><div class="bar-wrap"><div class="bar-fill" style="height:65%;background:linear-gradient(to top,#3b82f6,#60a5fa);"></div></div><p class="text-xs" style="color:#4b5563;">May</p></div>
+            <div class="bar-col flex-1"><div class="bar-wrap"><div class="bar-fill" style="height:90%;background:linear-gradient(to top,#34d399,#059669);"></div></div><p class="text-xs" style="color:#4b5563;">Iyn</p></div>
+            <div class="bar-col flex-1"><div class="bar-wrap"><div class="bar-fill" style="height:75%;background:linear-gradient(to top,#3b82f6,#60a5fa);"></div></div><p class="text-xs" style="color:#4b5563;">Iyl</p></div>
+            <div class="bar-col flex-1"><div class="bar-wrap"><div class="bar-fill" style="height:60%;background:linear-gradient(to top,#3b82f6,#60a5fa);"></div></div><p class="text-xs" style="color:#4b5563;">Avg</p></div>
+            <div class="bar-col flex-1"><div class="bar-wrap"><div class="bar-fill" style="height:80%;background:linear-gradient(to top,#a78bfa,#7c3aed);"></div></div><p class="text-xs" style="color:#4b5563;">Sen</p></div>
+            <div class="bar-col flex-1"><div class="bar-wrap"><div class="bar-fill" style="height:95%;background:linear-gradient(to top,#a78bfa,#7c3aed);"></div></div><p class="text-xs" style="color:#4b5563;">Okt</p></div>
+            <div class="bar-col flex-1"><div class="bar-wrap"><div class="bar-fill" style="height:70%;background:linear-gradient(to top,#3b82f6,#60a5fa);"></div></div><p class="text-xs" style="color:#4b5563;">Noy</p></div>
+            <div class="bar-col flex-1"><div class="bar-wrap"><div class="bar-fill" style="height:55%;background:linear-gradient(to top,#3b82f6,#60a5fa);"></div></div><p class="text-xs" style="color:#4b5563;">Dek</p></div>
+          </div>
+        </div>
+
+        <!-- Bo'limlar bo'yicha taqsimot -->
+        <div class="card">
+          <p class="font-semibold text-white mb-4">Bo'limlar Taqsimoti</p>
+          <div class="flex flex-col gap-3">
+            <div>
+              <div class="flex justify-between mb-1"><span class="text-xs" style="color:#94a3b8;">Muhandislik</span><span class="text-xs font-semibold text-white">72</span></div>
+              <div class="h-1.5 rounded-full" style="background:rgba(255,255,255,0.08);"><div class="h-1.5 rounded-full" style="width:72%;background:linear-gradient(to right,#3b82f6,#60a5fa);"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1"><span class="text-xs" style="color:#94a3b8;">Marketing</span><span class="text-xs font-semibold text-white">45</span></div>
+              <div class="h-1.5 rounded-full" style="background:rgba(255,255,255,0.08);"><div class="h-1.5 rounded-full" style="width:45%;background:linear-gradient(to right,#34d399,#059669);"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1"><span class="text-xs" style="color:#94a3b8;">Sotuv</span><span class="text-xs font-semibold text-white">58</span></div>
+              <div class="h-1.5 rounded-full" style="background:rgba(255,255,255,0.08);"><div class="h-1.5 rounded-full" style="width:58%;background:linear-gradient(to right,#fbbf24,#d97706);"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1"><span class="text-xs" style="color:#94a3b8;">Dizayn</span><span class="text-xs font-semibold text-white">31</span></div>
+              <div class="h-1.5 rounded-full" style="background:rgba(255,255,255,0.08);"><div class="h-1.5 rounded-full" style="width:31%;background:linear-gradient(to right,#a78bfa,#7c3aed);"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1"><span class="text-xs" style="color:#94a3b8;">Moliya</span><span class="text-xs font-semibold text-white">42</span></div>
+              <div class="h-1.5 rounded-full" style="background:rgba(255,255,255,0.08);"><div class="h-1.5 rounded-full" style="width:42%;background:linear-gradient(to right,#f87171,#dc2626);"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- So'nggi xodimlar -->
+      <div class="card">
+        <div class="flex items-center justify-between mb-4">
+          <p class="font-semibold text-white">Yaqinda Qo'shilgan Xodimlar</p>
+          <button class="text-xs font-semibold" style="color:#34d399;">Hammasini Ko'rish →</button>
+        </div>
+        <table class="w-full text-sm">
+          <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">ISM</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">LAVOZIM</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">BO'LIM</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">SANA</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">STATUS</th>
+          </tr></thead>
+          <tbody>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td class="py-3 flex items-center gap-2"><div class="avatar" style="background:linear-gradient(135deg,#34d399,#059669);">MT</div><span class="text-white font-medium">Mia Torres</span></td>
+              <td class="py-3" style="color:#94a3b8;">UX Dizayner</td>
+              <td class="py-3" style="color:#94a3b8;">Dizayn</td>
+              <td class="py-3" style="color:#94a3b8;">15 Okt 2024</td>
+              <td class="py-3"><span class="badge badge-green">Faol</span></td>
+            </tr>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td class="py-3 flex items-center gap-2"><div class="avatar" style="background:linear-gradient(135deg,#60a5fa,#3b82f6);">JK</div><span class="text-white font-medium">James Kim</span></td>
+              <td class="py-3" style="color:#94a3b8;">Backend Dasturchi</td>
+              <td class="py-3" style="color:#94a3b8;">Muhandislik</td>
+              <td class="py-3" style="color:#94a3b8;">10 Okt 2024</td>
+              <td class="py-3"><span class="badge badge-green">Faol</span></td>
+            </tr>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td class="py-3 flex items-center gap-2"><div class="avatar" style="background:linear-gradient(135deg,#a78bfa,#7c3aed);">SR</div><span class="text-white font-medium">Sarah Reeves</span></td>
+              <td class="py-3" style="color:#94a3b8;">Marketing Mutaxassisi</td>
+              <td class="py-3" style="color:#94a3b8;">Marketing</td>
+              <td class="py-3" style="color:#94a3b8;">5 Okt 2024</td>
+              <td class="py-3"><span class="badge badge-yellow">Sinov davri</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ====================================================
+         INBOX BO'LIMI
+         ==================================================== -->
+    <section id="section-inbox" class="content-section">
+      <div class="mb-6 flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-white">Kiruvchi Xabarlar</h1>
+          <p class="text-sm mt-1" style="color:#6b7280;">5 ta o'qilmagan xabar</p>
+        </div>
+        <button class="text-xs font-semibold px-4 py-2 rounded-xl" style="background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);">+ Yangi Xabar</button>
+      </div>
+      <div class="card flex flex-col gap-0">
+        <!-- Xabar qatorlari -->
+        <div class="flex items-start gap-4 p-4 rounded-xl cursor-pointer transition-all hover:bg-white/5" style="border-bottom:1px solid rgba(255,255,255,0.05);">
+          <div class="avatar" style="background:linear-gradient(135deg,#f87171,#dc2626);">AP</div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <p class="text-sm font-semibold text-white">Anna Petrova — Ta'til So'rovi</p>
+              <p class="text-xs" style="color:#4b5563;">10 daqiqa oldin</p>
+            </div>
+            <p class="text-xs mt-1" style="color:#94a3b8;">Hurmatli HR menejeri, Men 25-30 noyabr kunlari ta'til olishni so'ramoqchiman…</p>
+            <div class="flex gap-2 mt-2"><span class="badge badge-yellow">Ta'til so'rovi</span><span class="badge badge-blue">Yangi</span></div>
+          </div>
+        </div>
+        <div class="flex items-start gap-4 p-4 rounded-xl cursor-pointer transition-all hover:bg-white/5" style="border-bottom:1px solid rgba(255,255,255,0.05);">
+          <div class="avatar" style="background:linear-gradient(135deg,#34d399,#059669);">MT</div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <p class="text-sm font-semibold text-white">Mia Torres — Maosh to'g'risida savol</p>
+              <p class="text-xs" style="color:#4b5563;">1 soat oldin</p>
+            </div>
+            <p class="text-xs mt-1" style="color:#94a3b8;">Oktyabr oyi maoshimda noto'g'ri hisob-kitob bo'lgan ko'rinadi…</p>
+            <div class="flex gap-2 mt-2"><span class="badge badge-red">Shoshilinch</span><span class="badge badge-blue">Yangi</span></div>
+          </div>
+        </div>
+        <div class="flex items-start gap-4 p-4 rounded-xl cursor-pointer transition-all hover:bg-white/5" style="border-bottom:1px solid rgba(255,255,255,0.05);">
+          <div class="avatar" style="background:linear-gradient(135deg,#60a5fa,#3b82f6);">JK</div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <p class="text-sm font-semibold text-white">James Kim — Masofaviy ish haqida</p>
+              <p class="text-xs" style="color:#4b5563;">3 soat oldin</p>
+            </div>
+            <p class="text-xs mt-1" style="color:#94a3b8;">Kelasi hafta masofadan turib ishlamoqchi edim, ruxsat bera olasizmi?</p>
+            <div class="flex gap-2 mt-2"><span class="badge badge-purple">Masofaviy ish</span></div>
+          </div>
+        </div>
+        <div class="flex items-start gap-4 p-4 rounded-xl cursor-pointer transition-all hover:bg-white/5" style="border-bottom:1px solid rgba(255,255,255,0.05);">
+          <div class="avatar" style="background:linear-gradient(135deg,#a78bfa,#7c3aed);">SR</div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <p class="text-sm font-semibold text-white">Sarah Reeves — Onboarding haqida</p>
+              <p class="text-xs" style="color:#4b5563;">Kecha</p>
+            </div>
+            <p class="text-xs mt-1" style="color:#94a3b8;">Onboarding jarayoni juda yaxshi ketmoqda, rahmat! Faqat bir savol…</p>
+            <div class="flex gap-2 mt-2"><span class="badge badge-green">Onboarding</span></div>
+          </div>
+        </div>
+        <div class="flex items-start gap-4 p-4 rounded-xl cursor-pointer transition-all hover:bg-white/5">
+          <div class="avatar" style="background:linear-gradient(135deg,#fbbf24,#d97706);">LN</div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <p class="text-sm font-semibold text-white">Lucas Novak — Bonus haqida</p>
+              <p class="text-xs" style="color:#4b5563;">2 kun oldin</p>
+            </div>
+            <p class="text-xs mt-1" style="color:#94a3b8;">Q3 uchun performance bonus qachon tarqatiladi?</p>
+            <div class="flex gap-2 mt-2"><span class="badge badge-yellow">Moliya</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================
+         KALENDAR BO'LIMI
+         ==================================================== -->
+    <section id="section-calendar" class="content-section">
+      <div class="mb-6 flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-white">Kalendar</h1>
+          <p class="text-sm mt-1" style="color:#6b7280;">Noyabr 2024</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button class="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-white/5" style="border:1px solid rgba(255,255,255,0.1);"><i class="fa-solid fa-chevron-left text-xs" style="color:#94a3b8;"></i></button>
+          <span class="text-sm font-semibold text-white">Noyabr 2024</span>
+          <button class="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-white/5" style="border:1px solid rgba(255,255,255,0.1);"><i class="fa-solid fa-chevron-right text-xs" style="color:#94a3b8;"></i></button>
+          <button class="px-4 py-2 rounded-xl text-xs font-semibold" style="background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);">+ Tadbir Qo'shish</button>
+        </div>
+      </div>
+
+      <!-- Afsonalar -->
+      <div class="flex gap-4 mb-4">
+        <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-sm" style="background:#3b82f6;"></div><span class="text-xs" style="color:#94a3b8;">Yig'ilish</span></div>
+        <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-sm" style="background:#34d399;"></div><span class="text-xs" style="color:#94a3b8;">Ta'til</span></div>
+        <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-sm" style="background:#a78bfa;"></div><span class="text-xs" style="color:#94a3b8;">Tadbir</span></div>
+        <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-sm" style="background:#fbbf24;"></div><span class="text-xs" style="color:#94a3b8;">Muddat</span></div>
+      </div>
+
+      <!-- Kalendar grid -->
+      <div class="card p-4">
+        <!-- Hafta kunlari -->
+        <div class="grid grid-cols-7 gap-2 mb-2">
+          <div class="text-center text-xs font-semibold py-2" style="color:#4b5563;">Dush</div>
+          <div class="text-center text-xs font-semibold py-2" style="color:#4b5563;">Sesh</div>
+          <div class="text-center text-xs font-semibold py-2" style="color:#4b5563;">Chor</div>
+          <div class="text-center text-xs font-semibold py-2" style="color:#4b5563;">Pay</div>
+          <div class="text-center text-xs font-semibold py-2" style="color:#4b5563;">Jum</div>
+          <div class="text-center text-xs font-semibold py-2" style="color:#6b7280;">Sha</div>
+          <div class="text-center text-xs font-semibold py-2" style="color:#6b7280;">Yak</div>
+        </div>
+
+        <!-- Kalendar katakchalari -->
+        <div class="grid grid-cols-7 gap-2">
+          <!-- 1-hafta (oktyabrdan qolgan kunlar — bo'sh) -->
+          <div class="cal-cell opacity-30"><p class="text-xs" style="color:#4b5563;">28</p></div>
+          <div class="cal-cell opacity-30"><p class="text-xs" style="color:#4b5563;">29</p></div>
+          <div class="cal-cell opacity-30"><p class="text-xs" style="color:#4b5563;">30</p></div>
+          <div class="cal-cell opacity-30"><p class="text-xs" style="color:#4b5563;">31</p></div>
+          <!-- 1-noyabr -->
+          <div class="cal-cell"><p class="text-xs text-white font-medium">1</p><div class="cal-event" style="background:rgba(59,130,246,0.2);color:#60a5fa;">Jamoa yig'ilishi</div></div>
+          <div class="cal-cell"><p class="text-xs" style="color:#6b7280;">2</p></div>
+          <div class="cal-cell"><p class="text-xs" style="color:#6b7280;">3</p></div>
+          <!-- 2-hafta -->
+          <div class="cal-cell"><p class="text-xs text-white font-medium">4</p><div class="cal-event" style="background:rgba(52,211,153,0.2);color:#34d399;">Ta'til — MT</div></div>
+          <div class="cal-cell"><p class="text-xs text-white font-medium">5</p></div>
+          <div class="cal-cell"><p class="text-xs text-white font-medium">6</p><div class="cal-event" style="background:rgba(167,139,250,0.2);color:#a78bfa;">HR Seminar</div></div>
+          <div class="cal-cell"><p class="text-xs text-white font-medium">7</p></div>
+          <div class="cal-cell"><p class="text-xs text-white font-medium">8</p><div class="cal-event" style="background:rgba(251,191,36,0.2);color:#fbbf24;">Maosh muddat</div></div>
+          <div class="cal-cell"><p class="text-xs" style="color:#6b7280;">9</p></div>
+          <div class="cal-cell"><p class="text-xs" style="color:#6b7280;">10</p></div>
+          <!-- 3-hafta -->
+          <div class="cal-cell"><p class="text-xs text-white font-medium">11</p><div class="cal-event" style="background:rgba(59,130,246,0.2);color:#60a5fa;">1:1 Davis</div></div>
+          <div class="cal-cell"><p class="text-xs text-white font-medium">12</p></div>
+          <div class="cal-cell"><p class="text-xs text-white font-medium">13</p><div class="cal-event" style="background:rgba(167,139,250,0.2);color:#a78bfa;">Onboarding</div><div class="cal-event" style="background:rgba(59,130,246,0.2);color:#60a5fa;">Intervyu — JK</div></div>
+          <div class="cal-cell"><p class="text-xs text-white font-medium">14</p></div>
+          <div class="cal-cell"><p class="text-xs text-white font-medium">15</p><div class="cal-event" style="background:rgba(52,211,153,0.2);color:#34d399;">Ta'til — SR</div></div>
+          <div class="cal-cell"><p class="text-xs" style="color:#6b7280;">16</p></div>
+          <div class="cal-cell"><p class="text-xs" style="color:#6b7280;">17</p></div>
+          <!-- 4-hafta -->
+          <div class="cal-cell"><p class="text-xs text-white font-medium">18</p></div>
+          <div class="cal-cell"><p class="text-xs text-white font-medium">19</p><div class="cal-event" style="background:rgba(59,130,246,0.2);color:#60a5fa;">Bo'lim yig'ilishi</div></div>
+          <div class="cal-cell"><p class="text-xs text-white font-medium">20</p><div class="cal-event" style="background:rgba(251,191,36,0.2);color:#fbbf24;">Hisobot muddat</div></div>
+          <div class="cal-cell"><p class="text-xs text-white font-medium">21</p></div>
+          <div class="cal-cell"><p class="text-xs text-white font-medium">22</p><div class="cal-event" style="background:rgba(248,113,113,0.2);color:#f87171;">Korporativ tadbir</div></div>
+          <div class="cal-cell"><p class="text-xs" style="color:#6b7280;">23</p></div>
+          <div class="cal-cell"><p class="text-xs" style="color:#6b7280;">24</p></div>
+          <!-- 5-hafta -->
+          <div class="cal-cell"><p class="text-xs text-white font-medium">25</p><div class="cal-event" style="background:rgba(52,211,153,0.2);color:#34d399;">Ta'til boshlanishi</div></div>
+          <div class="cal-cell"><p class="text-xs text-white font-medium">26</p></div>
+          <div class="cal-cell"><p class="text-xs text-white font-medium">27</p><div class="cal-event" style="background:rgba(167,139,250,0.2);color:#a78bfa;">Yillik baholash</div></div>
+          <div class="cal-cell"><p class="text-xs text-white font-medium">28</p></div>
+          <div class="cal-cell"><p class="text-xs text-white font-medium">29</p><div class="cal-event" style="background:rgba(59,130,246,0.2);color:#60a5fa;">Strategiya yig'ilishi</div></div>
+          <div class="cal-cell"><p class="text-xs" style="color:#6b7280;">30</p><div class="cal-event" style="background:rgba(251,191,36,0.2);color:#fbbf24;">Oy yakuni</div></div>
+          <div class="cal-cell opacity-30"><p class="text-xs" style="color:#4b5563;">1</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================
+         XODIMLAR BO'LIMI (Asosiy ko'rinish)
+         ==================================================== -->
+    <section id="section-employees" class="content-section">
+      <div class="mb-6 flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-white">Xodim Profili</h1>
+          <p class="text-sm mt-1" style="color:#6b7280;">Batafsil ma'lumotlar va ko'rsatkichlar</p>
+        </div>
+        <button class="px-4 py-2 rounded-xl text-xs font-semibold" style="background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);">← Xodimlar Ro'yxati</button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-5">
+        <!-- Chap ustun: Profil kartasi -->
+        <div class="flex flex-col gap-5">
+
+          <!-- Profil asosiy karta -->
+          <div class="card text-center">
+            <div class="avatar-lg mx-auto mb-3" style="background:linear-gradient(135deg,#34d399,#059669);width:72px;height:72px;font-size:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;">MT</div>
+            <p class="text-lg font-bold text-white">Mia Torres</p>
+            <p class="text-xs mt-0.5" style="color:#94a3b8;">UX/UI Dizayner</p>
+            <div class="flex gap-2 justify-center mt-2">
+              <span class="badge badge-green">Full-Time</span>
+              <span class="badge badge-blue">Hybrid</span>
+            </div>
+            <div class="mt-4 flex flex-col gap-2 text-left">
+              <div class="flex items-center gap-2"><i class="fa-solid fa-id-card text-xs" style="color:#4b5563;width:16px;"></i><span class="text-xs" style="color:#94a3b8;">ID: <span class="text-white">#EMP-0048</span></span></div>
+              <div class="flex items-center gap-2"><i class="fa-solid fa-calendar text-xs" style="color:#4b5563;width:16px;"></i><span class="text-xs" style="color:#94a3b8;">Qo'shilgan: <span class="text-white">15 Okt 2024</span></span></div>
+              <div class="flex items-center gap-2"><i class="fa-solid fa-envelope text-xs" style="color:#4b5563;width:16px;"></i><span class="text-xs" style="color:#94a3b8; overflow:hidden;text-overflow:ellipsis;">mia@teamhub.io</span></div>
+              <div class="flex items-center gap-2"><i class="fa-solid fa-phone text-xs" style="color:#4b5563;width:16px;"></i><span class="text-xs" style="color:#94a3b8;">+1 (555) 204-3817</span></div>
+              <div class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-xs" style="color:#4b5563;width:16px;"></i><span class="text-xs" style="color:#94a3b8;">San Francisco, CA</span></div>
+            </div>
+            <div class="flex gap-2 mt-4">
+              <button class="flex-1 py-2 rounded-xl text-xs font-semibold" style="background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);">Tahrirlash</button>
+              <button class="flex-1 py-2 rounded-xl text-xs font-semibold" style="background:rgba(255,255,255,0.06);color:#94a3b8;border:1px solid rgba(255,255,255,0.1);">Xabar</button>
+            </div>
+          </div>
+
+          <!-- Hujjatlar -->
+          <div class="card">
+            <p class="font-semibold text-white mb-4 text-sm">Hujjatlar</p>
+            <div class="flex flex-col gap-3">
+              <div class="flex items-center justify-between p-2.5 rounded-xl" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);">
+                <div class="flex items-center gap-2"><i class="fa-solid fa-file-pdf text-xs" style="color:#f87171;"></i><span class="text-xs text-white">Samaradorlik Sharhi</span></div>
+                <button class="text-xs px-2 py-1 rounded-lg" style="background:rgba(59,130,246,0.15);color:#60a5fa;"><i class="fa-solid fa-download text-xs"></i></button>
+              </div>
+              <div class="flex items-center justify-between p-2.5 rounded-xl" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);">
+                <div class="flex items-center gap-2"><i class="fa-solid fa-file-pdf text-xs" style="color:#f87171;"></i><span class="text-xs text-white">Shartnoma</span></div>
+                <button class="text-xs px-2 py-1 rounded-lg" style="background:rgba(59,130,246,0.15);color:#60a5fa;"><i class="fa-solid fa-download text-xs"></i></button>
+              </div>
+              <div class="flex items-center justify-between p-2.5 rounded-xl" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);">
+                <div class="flex items-center gap-2"><i class="fa-solid fa-file-pdf text-xs" style="color:#f87171;"></i><span class="text-xs text-white">Identifikatsiya</span></div>
+                <button class="text-xs px-2 py-1 rounded-lg" style="background:rgba(59,130,246,0.15);color:#60a5fa;"><i class="fa-solid fa-download text-xs"></i></button>
+              </div>
+              <div class="flex items-center justify-between p-2.5 rounded-xl" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);">
+                <div class="flex items-center gap-2"><i class="fa-solid fa-file-pdf text-xs" style="color:#f87171;"></i><span class="text-xs text-white">Rezyume</span></div>
+                <button class="text-xs px-2 py-1 rounded-lg" style="background:rgba(59,130,246,0.15);color:#60a5fa;"><i class="fa-solid fa-download text-xs"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- O'rta va o'ng ustunlar -->
+        <div class="col-span-2 flex flex-col gap-5">
+
+          <!-- Ta'til KPI doiralari -->
+          <div class="card">
+            <p class="font-semibold text-white mb-4 text-sm">Ta'til Kunlari Ko'rsatkichi</p>
+            <div class="grid grid-cols-4 gap-4">
+              <!-- Jami ta'til -->
+              <div class="flex flex-col items-center gap-2">
+                <div class="ring-container">
+                  <svg viewBox="0 0 80 80" width="80" height="80">
+                    <circle class="ring-bg" cx="40" cy="40" r="34" stroke-width="7"/>
+                    <circle class="ring-fill" cx="40" cy="40" r="34" stroke-width="7" stroke="#60a5fa"
+                      stroke-dasharray="213.6" stroke-dashoffset="53.4"/>
+                  </svg>
+                  <div class="ring-text"><p class="text-base font-bold text-white">14</p></div>
+                </div>
+                <p class="text-xs font-medium" style="color:#60a5fa;">Jami Ta'til</p>
+                <p class="text-xs" style="color:#4b5563;">75% ishlatilgan</p>
+              </div>
+              <!-- Yillik ta'til -->
+              <div class="flex flex-col items-center gap-2">
+                <div class="ring-container">
+                  <svg viewBox="0 0 80 80" width="80" height="80">
+                    <circle class="ring-bg" cx="40" cy="40" r="34" stroke-width="7"/>
+                    <circle class="ring-fill" cx="40" cy="40" r="34" stroke-width="7" stroke="#34d399"
+                      stroke-dasharray="213.6" stroke-dashoffset="42.7"/>
+                  </svg>
+                  <div class="ring-text"><p class="text-base font-bold text-white">10</p></div>
+                </div>
+                <p class="text-xs font-medium" style="color:#34d399;">Yillik Ta'til</p>
+                <p class="text-xs" style="color:#4b5563;">80% ishlatilgan</p>
+              </div>
+              <!-- Tasodifiy ta'til -->
+              <div class="flex flex-col items-center gap-2">
+                <div class="ring-container">
+                  <svg viewBox="0 0 80 80" width="80" height="80">
+                    <circle class="ring-bg" cx="40" cy="40" r="34" stroke-width="7"/>
+                    <circle class="ring-fill" cx="40" cy="40" r="34" stroke-width="7" stroke="#a78bfa"
+                      stroke-dasharray="213.6" stroke-dashoffset="106.8"/>
+                  </svg>
+                  <div class="ring-text"><p class="text-base font-bold text-white">6</p></div>
+                </div>
+                <p class="text-xs font-medium" style="color:#a78bfa;">Tasodifiy Ta'til</p>
+                <p class="text-xs" style="color:#4b5563;">50% ishlatilgan</p>
+              </div>
+              <!-- Kasal ta'tili -->
+              <div class="flex flex-col items-center gap-2">
+                <div class="ring-container">
+                  <svg viewBox="0 0 80 80" width="80" height="80">
+                    <circle class="ring-bg" cx="40" cy="40" r="34" stroke-width="7"/>
+                    <circle class="ring-fill" cx="40" cy="40" r="34" stroke-width="7" stroke="#fbbf24"
+                      stroke-dasharray="213.6" stroke-dashoffset="149.5"/>
+                  </svg>
+                  <div class="ring-text"><p class="text-base font-bold text-white">3</p></div>
+                </div>
+                <p class="text-xs font-medium" style="color:#fbbf24;">Kasal Ta'tili</p>
+                <p class="text-xs" style="color:#4b5563;">30% ishlatilgan</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Samaradorlik grafigi -->
+          <div class="card">
+            <div class="flex items-center justify-between mb-4">
+              <p class="font-semibold text-white text-sm">Samaradorlik Ko'rsatkichi</p>
+              <div class="flex gap-3">
+                <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded-full" style="background:#34d399;"></div><span class="text-xs" style="color:#6b7280;">2024</span></div>
+                <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded-full" style="background:#3b82f6;"></div><span class="text-xs" style="color:#6b7280;">2023</span></div>
+              </div>
+            </div>
+            <!-- SVG chiziqli grafik -->
+            <svg class="perf-chart" viewBox="0 0 500 120" preserveAspectRatio="none" style="width:100%;height:130px;">
+              <defs>
+                <linearGradient id="grad24" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" style="stop-color:#34d399;stop-opacity:0.3"/>
+                  <stop offset="100%" style="stop-color:#34d399;stop-opacity:0"/>
+                </linearGradient>
+                <linearGradient id="grad23" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.2"/>
+                  <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0"/>
+                </linearGradient>
+              </defs>
+              <!-- 2023 soyasi -->
+              <path d="M0,90 C40,85 80,75 120,80 C160,85 200,70 240,72 C280,74 320,65 360,68 C400,71 450,60 500,62 L500,120 L0,120 Z" fill="url(#grad23)"/>
+              <!-- 2023 chizig'i -->
+              <path d="M0,90 C40,85 80,75 120,80 C160,85 200,70 240,72 C280,74 320,65 360,68 C400,71 450,60 500,62" fill="none" stroke="#3b82f6" stroke-width="2" stroke-dasharray="5,3"/>
+              <!-- 2024 soyasi -->
+              <path d="M0,80 C40,72 80,60 120,65 C160,70 200,50 240,48 C280,46 320,38 360,35 C400,32 450,25 500,20 L500,120 L0,120 Z" fill="url(#grad24)"/>
+              <!-- 2024 chizig'i -->
+              <path d="M0,80 C40,72 80,60 120,65 C160,70 200,50 240,48 C280,46 320,38 360,35 C400,32 450,25 500,20" fill="none" stroke="#34d399" stroke-width="2.5"/>
+              <!-- Nuqtalar -->
+              <circle cx="0" cy="80" r="4" fill="#34d399"/>
+              <circle cx="83" cy="60" r="4" fill="#34d399"/>
+              <circle cx="166" cy="50" r="4" fill="#34d399"/>
+              <circle cx="249" cy="48" r="4" fill="#34d399"/>
+              <circle cx="333" cy="35" r="4" fill="#34d399"/>
+              <circle cx="416" cy="28" r="4" fill="#34d399"/>
+              <circle cx="500" cy="20" r="4" fill="#34d399"/>
+              <!-- X o'qi yorliqlari -->
+              <text x="0" y="118" font-size="9" fill="#4b5563" font-family="Inter">Yan</text>
+              <text x="75" y="118" font-size="9" fill="#4b5563" font-family="Inter">Mar</text>
+              <text x="158" y="118" font-size="9" fill="#4b5563" font-family="Inter">May</text>
+              <text x="241" y="118" font-size="9" fill="#4b5563" font-family="Inter">Iyl</text>
+              <text x="324" y="118" font-size="9" fill="#4b5563" font-family="Inter">Sen</text>
+              <text x="407" y="118" font-size="9" fill="#4b5563" font-family="Inter">Noy</text>
+            </svg>
+          </div>
+
+          <!-- Haftalik ishlangan soatlar -->
+          <div class="card">
+            <div class="flex items-center justify-between mb-4">
+              <p class="font-semibold text-white text-sm">Haftalik Ishlangan Soatlar</p>
+              <span class="badge badge-green">Bu Hafta: 42h</span>
+            </div>
+            <div class="flex items-end gap-2 h-20">
+              <div class="bar-col flex-1"><div class="bar-wrap"><div class="bar-fill" style="height:80%;background:linear-gradient(to top,#34d399,#059669);"></div></div><p class="text-xs" style="color:#4b5563;">Du</p></div>
+              <div class="bar-col flex-1"><div class="bar-wrap"><div class="bar-fill" style="height:95%;background:linear-gradient(to top,#34d399,#059669);"></div></div><p class="text-xs" style="color:#4b5563;">Se</p></div>
+              <div class="bar-col flex-1"><div class="bar-wrap"><div class="bar-fill" style="height:65%;background:linear-gradient(to top,#3b82f6,#60a5fa);"></div></div><p class="text-xs" style="color:#4b5563;">Ch</p></div>
+              <div class="bar-col flex-1"><div class="bar-wrap"><div class="bar-fill" style="height:90%;background:linear-gradient(to top,#34d399,#059669);"></div></div><p class="text-xs" style="color:#4b5563;">Pa</p></div>
+              <div class="bar-col flex-1"><div class="bar-wrap"><div class="bar-fill" style="height:75%;background:linear-gradient(to top,#3b82f6,#60a5fa);"></div></div><p class="text-xs" style="color:#4b5563;">Ju</p></div>
+              <div class="bar-col flex-1"><div class="bar-wrap"><div class="bar-fill" style="height:20%;background:linear-gradient(to top,#fbbf24,#d97706);"></div></div><p class="text-xs" style="color:#6b7280;">Sh</p></div>
+              <div class="bar-col flex-1"><div class="bar-wrap"><div class="bar-fill" style="height:5%;background:linear-gradient(to top,#fbbf24,#d97706);"></div></div><p class="text-xs" style="color:#6b7280;">Ya</p></div>
+            </div>
+          </div>
+
+          <!-- Maosh xulosasi -->
+          <div class="card">
+            <p class="font-semibold text-white mb-4 text-sm">Maosh Xulosasi</p>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="flex flex-col gap-2">
+                <div class="flex justify-between py-2" style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                  <span class="text-xs" style="color:#94a3b8;">Asosiy Maosh</span>
+                  <span class="text-xs font-semibold text-white">$3,200</span>
+                </div>
+                <div class="flex justify-between py-2" style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                  <span class="text-xs" style="color:#94a3b8;">Qo'shimcha Nafaqa</span>
+                  <span class="text-xs font-semibold" style="color:#34d399;">+$800</span>
+                </div>
+                <div class="flex justify-between py-2" style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                  <span class="text-xs" style="color:#94a3b8;">Sog'liqni Saqlash</span>
+                  <span class="text-xs font-semibold" style="color:#34d399;">+$450</span>
+                </div>
+                <div class="flex justify-between py-2" style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                  <span class="text-xs" style="color:#94a3b8;">Transport</span>
+                  <span class="text-xs font-semibold" style="color:#34d399;">+$200</span>
+                </div>
+              </div>
+              <div class="flex flex-col gap-2">
+                <div class="flex justify-between py-2" style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                  <span class="text-xs" style="color:#94a3b8;">Daromad Solig'i</span>
+                  <span class="text-xs font-semibold" style="color:#f87171;">-$640</span>
+                </div>
+                <div class="flex justify-between py-2" style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                  <span class="text-xs" style="color:#94a3b8;">Ijtimoiy Sug'urta</span>
+                  <span class="text-xs font-semibold" style="color:#f87171;">-$160</span>
+                </div>
+                <div class="flex justify-between py-2" style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                  <span class="text-xs" style="color:#94a3b8;">Bonus</span>
+                  <span class="text-xs font-semibold" style="color:#34d399;">+$2,000</span>
+                </div>
+                <div class="flex justify-between py-2">
+                  <span class="text-xs font-bold text-white">JAMI TO'LOV</span>
+                  <span class="text-sm font-bold" style="color:#34d399;">$5,850</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================
+         DAVOMAT BO'LIMI
+         ==================================================== -->
+    <section id="section-attendance" class="content-section">
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold text-white">Davomat Monitoring</h1>
+        <p class="text-sm mt-1" style="color:#6b7280;">Real vaqt davomati va hisobotlar</p>
+      </div>
+      <div class="grid grid-cols-4 gap-5 mb-6">
+        <div class="card"><p class="text-xs font-semibold mb-2" style="color:#6b7280;">BUGUN KELGANLAR</p><p class="text-3xl font-bold text-white">231</p><p class="text-xs mt-1" style="color:#34d399;">93.1% davomat</p></div>
+        <div class="card"><p class="text-xs font-semibold mb-2" style="color:#6b7280;">KECHIKKANLAR</p><p class="text-3xl font-bold text-white">8</p><p class="text-xs mt-1" style="color:#fbbf24;">3.2% kechikish darajasi</p></div>
+        <div class="card"><p class="text-xs font-semibold mb-2" style="color:#6b7280;">KELMAYOTGANLAR</p><p class="text-3xl font-bold text-white">9</p><p class="text-xs mt-1" style="color:#f87171;">3.6% yo'qlik darajasi</p></div>
+        <div class="card"><p class="text-xs font-semibold mb-2" style="color:#6b7280;">MASOFADAN ISHLAYOTGAN</p><p class="text-3xl font-bold text-white">42</p><p class="text-xs mt-1" style="color:#60a5fa;">16.9% remote</p></div>
+      </div>
+      <div class="card">
+        <div class="flex items-center justify-between mb-4">
+          <p class="font-semibold text-white">Bugungi Davomat Jadvali</p>
+          <button class="text-xs px-3 py-1.5 rounded-xl" style="background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);">Eksport</button>
+        </div>
+        <table class="w-full text-sm">
+          <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">XODIM</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">KIRISH VAQTI</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">CHIQISH VAQTI</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">ISHLAGAN SOAT</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">STATUS</th>
+          </tr></thead>
+          <tbody>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);"><td class="py-3 flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#34d399,#059669);">MT</div><span class="text-white text-xs">Mia Torres</span></td><td class="py-3 text-xs" style="color:#94a3b8;">08:52</td><td class="py-3 text-xs" style="color:#94a3b8;">—</td><td class="py-3 text-xs text-white">7h 12m</td><td class="py-3"><span class="badge badge-green">Faol</span></td></tr>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);"><td class="py-3 flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#60a5fa,#3b82f6);">JK</div><span class="text-white text-xs">James Kim</span></td><td class="py-3 text-xs" style="color:#94a3b8;">09:05</td><td class="py-3 text-xs" style="color:#94a3b8;">—</td><td class="py-3 text-xs text-white">7h 00m</td><td class="py-3"><span class="badge badge-blue">Remote</span></td></tr>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);"><td class="py-3 flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#a78bfa,#7c3aed);">SR</div><span class="text-white text-xs">Sarah Reeves</span></td><td class="py-3 text-xs" style="color:#fbbf24;">09:47</td><td class="py-3 text-xs" style="color:#94a3b8;">—</td><td class="py-3 text-xs text-white">6h 17m</td><td class="py-3"><span class="badge badge-yellow">Kechikdi</span></td></tr>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);"><td class="py-3 flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#fbbf24,#d97706);">LN</div><span class="text-white text-xs">Lucas Novak</span></td><td class="py-3 text-xs" style="color:#94a3b8;">—</td><td class="py-3 text-xs" style="color:#94a3b8;">—</td><td class="py-3 text-xs" style="color:#4b5563;">0h</td><td class="py-3"><span class="badge badge-red">Yo'q</span></td></tr>
+            <tr class="table-row"><td class="py-3 flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#f87171,#dc2626);">AP</div><span class="text-white text-xs">Anna Petrova</span></td><td class="py-3 text-xs" style="color:#94a3b8;">08:30</td><td class="py-3 text-xs" style="color:#94a3b8;">17:15</td><td class="py-3 text-xs text-white">8h 45m</td><td class="py-3"><span class="badge badge-purple">Chiqdi</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ====================================================
+         SAMARADORLIK BO'LIMI
+         ==================================================== -->
+    <section id="section-performance" class="content-section">
+      <div class="mb-6 flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-white">Samaradorlik Baholash</h1>
+          <p class="text-sm mt-1" style="color:#6b7280;">Q4 2024 — Xodimlar reytingi</p>
+        </div>
+        <button class="px-4 py-2 rounded-xl text-xs font-semibold" style="background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);">+ Yangi Baholash</button>
+      </div>
+
+      <!-- KPI Umumiy -->
+      <div class="grid grid-cols-3 gap-5 mb-6">
+        <div class="card"><p class="text-xs font-semibold mb-2" style="color:#6b7280;">O'RTACHA REYTING</p><p class="text-3xl font-bold text-white">4.2<span class="text-sm font-normal" style="color:#6b7280;">/5</span></p><p class="text-xs mt-1" style="color:#34d399;">+0.3 o'tgan chorakdan</p></div>
+        <div class="card"><p class="text-xs font-semibold mb-2" style="color:#6b7280;">A'LO XODIMLAR</p><p class="text-3xl font-bold text-white">38</p><p class="text-xs mt-1" style="color:#60a5fa;">Jami xodimlarning 15.3%</p></div>
+        <div class="card"><p class="text-xs font-semibold mb-2" style="color:#6b7280;">YAXSHILANISH KERAK</p><p class="text-3xl font-bold text-white">12</p><p class="text-xs mt-1" style="color:#fbbf24;">Qo'llab-quvvatlash rejasi</p></div>
+      </div>
+
+      <!-- Samaradorlik jadvali -->
+      <div class="card">
+        <div class="flex items-center justify-between mb-4">
+          <p class="font-semibold text-white">Xodimlar Reytingi Jadvali</p>
+          <div class="flex gap-2">
+            <select class="text-xs px-3 py-1.5 rounded-xl outline-none" style="background:rgba(255,255,255,0.08);color:#94a3b8;border:1px solid rgba(255,255,255,0.1);">
+              <option>Barcha Bo'limlar</option>
+              <option>Muhandislik</option>
+              <option>Dizayn</option>
+              <option>Marketing</option>
+            </select>
+          </div>
+        </div>
+        <table class="w-full text-sm">
+          <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">XODIM</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">LAVOZIM</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">BO'LIM</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">REYTING</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">LOYIHALAR</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">STATUS</th>
+          </tr></thead>
+          <tbody>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td class="py-3 flex items-center gap-2"><div class="avatar" style="width:30px;height:30px;font-size:11px;background:linear-gradient(135deg,#34d399,#059669);">MT</div><span class="text-white text-sm">Mia Torres</span></td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">UX Dizayner</td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">Dizayn</td>
+              <td class="py-3"><div class="flex items-center gap-1"><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><span class="text-xs text-white ml-1">5.0</span></div></td>
+              <td class="py-3 text-xs text-white">12</td>
+              <td class="py-3"><span class="badge badge-green">A'lo</span></td>
+            </tr>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td class="py-3 flex items-center gap-2"><div class="avatar" style="width:30px;height:30px;font-size:11px;background:linear-gradient(135deg,#60a5fa,#3b82f6);">JK</div><span class="text-white text-sm">James Kim</span></td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">Backend Dasturchi</td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">Muhandislik</td>
+              <td class="py-3"><div class="flex items-center gap-1"><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><i class="fa-regular fa-star text-xs" style="color:#fbbf24;"></i><span class="text-xs text-white ml-1">4.3</span></div></td>
+              <td class="py-3 text-xs text-white">9</td>
+              <td class="py-3"><span class="badge badge-green">Yaxshi</span></td>
+            </tr>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td class="py-3 flex items-center gap-2"><div class="avatar" style="width:30px;height:30px;font-size:11px;background:linear-gradient(135deg,#a78bfa,#7c3aed);">SR</div><span class="text-white text-sm">Sarah Reeves</span></td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">Marketing Mut.</td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">Marketing</td>
+              <td class="py-3"><div class="flex items-center gap-1"><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><i class="fa-regular fa-star text-xs" style="color:#4b5563;"></i><span class="text-xs text-white ml-1">4.1</span></div></td>
+              <td class="py-3 text-xs text-white">7</td>
+              <td class="py-3"><span class="badge badge-green">Yaxshi</span></td>
+            </tr>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td class="py-3 flex items-center gap-2"><div class="avatar" style="width:30px;height:30px;font-size:11px;background:linear-gradient(135deg,#fbbf24,#d97706);">LN</div><span class="text-white text-sm">Lucas Novak</span></td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">Moliya Analist</td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">Moliya</td>
+              <td class="py-3"><div class="flex items-center gap-1"><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><i class="fa-regular fa-star text-xs" style="color:#4b5563;"></i><i class="fa-regular fa-star text-xs" style="color:#4b5563;"></i><span class="text-xs text-white ml-1">3.5</span></div></td>
+              <td class="py-3 text-xs text-white">5</td>
+              <td class="py-3"><span class="badge badge-yellow">O'rtacha</span></td>
+            </tr>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td class="py-3 flex items-center gap-2"><div class="avatar" style="width:30px;height:30px;font-size:11px;background:linear-gradient(135deg,#f87171,#dc2626);">AP</div><span class="text-white text-sm">Anna Petrova</span></td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">Sotuv Menejeri</td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">Sotuv</td>
+              <td class="py-3"><div class="flex items-center gap-1"><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><span class="text-xs text-white ml-1">4.8</span></div></td>
+              <td class="py-3 text-xs text-white">15</td>
+              <td class="py-3"><span class="badge badge-green">A'lo</span></td>
+            </tr>
+            <tr class="table-row">
+              <td class="py-3 flex items-center gap-2"><div class="avatar" style="width:30px;height:30px;font-size:11px;background:linear-gradient(135deg,#818cf8,#6366f1);">DW</div><span class="text-white text-sm">Derek Wong</span></td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">Frontend Dasturchi</td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">Muhandislik</td>
+              <td class="py-3"><div class="flex items-center gap-1"><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><i class="fa-solid fa-star text-xs" style="color:#fbbf24;"></i><i class="fa-regular fa-star text-xs" style="color:#4b5563;"></i><i class="fa-regular fa-star text-xs" style="color:#4b5563;"></i><i class="fa-regular fa-star text-xs" style="color:#4b5563;"></i><span class="text-xs text-white ml-1">2.8</span></div></td>
+              <td class="py-3 text-xs text-white">3</td>
+              <td class="py-3"><span class="badge badge-red">Yaxshilanish kerak</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ====================================================
+         MAOSH BO'LIMI
+         ==================================================== -->
+    <section id="section-payroll" class="content-section">
+      <div class="mb-6 flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-white">Maosh Boshqaruvi</h1>
+          <p class="text-sm mt-1" style="color:#6b7280;">Noyabr 2024 maosh sikli</p>
+        </div>
+        <button class="px-4 py-2 rounded-xl text-xs font-semibold" style="background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);">Maosh Tayyorlash</button>
+      </div>
+
+      <!-- Statistika kartalar -->
+      <div class="grid grid-cols-4 gap-5 mb-6">
+        <div class="card">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-xs font-semibold" style="color:#6b7280;">JAMI MAOSH FONDI</p>
+            <i class="fa-solid fa-money-bill text-xs" style="color:#34d399;"></i>
+          </div>
+          <p class="text-2xl font-bold text-white">$1.4M</p>
+          <p class="text-xs mt-1" style="color:#34d399;">Tasdiqlangan</p>
+        </div>
+        <div class="card">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-xs font-semibold" style="color:#6b7280;">KUTILAYOTGAN</p>
+            <i class="fa-solid fa-clock text-xs" style="color:#fbbf24;"></i>
+          </div>
+          <p class="text-2xl font-bold text-white">23</p>
+          <p class="text-xs mt-1" style="color:#fbbf24;">Tasdiqlanmagan</p>
+        </div>
+        <div class="card">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-xs font-semibold" style="color:#6b7280;">TO'LANGAN</p>
+            <i class="fa-solid fa-check-circle text-xs" style="color:#60a5fa;"></i>
+          </div>
+          <p class="text-2xl font-bold text-white">185</p>
+          <p class="text-xs mt-1" style="color:#60a5fa;">Ushbu oy</p>
+        </div>
+        <div class="card">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-xs font-semibold" style="color:#6b7280;">O'RTACHA MAOSH</p>
+            <i class="fa-solid fa-chart-bar text-xs" style="color:#a78bfa;"></i>
+          </div>
+          <p class="text-2xl font-bold text-white">$5,650</p>
+          <p class="text-xs mt-1" style="color:#a78bfa;">+$210 o'sish</p>
+        </div>
+      </div>
+
+      <!-- Maosh jadvali (tasdiqlash bilan) -->
+      <div class="card">
+        <div class="flex items-center justify-between mb-4">
+          <p class="font-semibold text-white">Maosh Ro'yxati — Tasdiqlash Kutilmoqda</p>
+          <div class="flex gap-2">
+            <button id="btn-approve-all" class="text-xs px-3 py-1.5 rounded-xl font-semibold" style="background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);">Hammasini Tasdiqlash</button>
+          </div>
+        </div>
+        <table class="w-full text-sm">
+          <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">XODIM</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">BO'LIM</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">ASOSIY MAOSH</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">BONUS</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">JAMI</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">AMAL</th>
+          </tr></thead>
+          <tbody id="payroll-tbody">
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td class="py-3 flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#34d399,#059669);">MT</div><span class="text-white text-xs">Mia Torres</span></td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">Dizayn</td>
+              <td class="py-3 text-xs text-white">$3,200</td>
+              <td class="py-3 text-xs" style="color:#34d399;">+$2,000</td>
+              <td class="py-3 text-xs font-bold text-white">$5,850</td>
+              <td class="py-3"><div class="flex gap-2"><button class="btn-approve" onclick="approveRow(this)">Tasdiqlash</button><button class="btn-reject" onclick="rejectRow(this)">Rad etish</button></div></td>
+            </tr>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td class="py-3 flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#60a5fa,#3b82f6);">JK</div><span class="text-white text-xs">James Kim</span></td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">Muhandislik</td>
+              <td class="py-3 text-xs text-white">$4,500</td>
+              <td class="py-3 text-xs" style="color:#34d399;">+$1,200</td>
+              <td class="py-3 text-xs font-bold text-white">$5,700</td>
+              <td class="py-3"><div class="flex gap-2"><button class="btn-approve" onclick="approveRow(this)">Tasdiqlash</button><button class="btn-reject" onclick="rejectRow(this)">Rad etish</button></div></td>
+            </tr>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td class="py-3 flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#a78bfa,#7c3aed);">SR</div><span class="text-white text-xs">Sarah Reeves</span></td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">Marketing</td>
+              <td class="py-3 text-xs text-white">$2,800</td>
+              <td class="py-3 text-xs" style="color:#34d399;">+$600</td>
+              <td class="py-3 text-xs font-bold text-white">$3,400</td>
+              <td class="py-3"><div class="flex gap-2"><button class="btn-approve" onclick="approveRow(this)">Tasdiqlash</button><button class="btn-reject" onclick="rejectRow(this)">Rad etish</button></div></td>
+            </tr>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td class="py-3 flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#fbbf24,#d97706);">LN</div><span class="text-white text-xs">Lucas Novak</span></td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">Moliya</td>
+              <td class="py-3 text-xs text-white">$3,800</td>
+              <td class="py-3 text-xs" style="color:#4b5563;">—</td>
+              <td class="py-3 text-xs font-bold text-white">$3,800</td>
+              <td class="py-3"><div class="flex gap-2"><button class="btn-approve" onclick="approveRow(this)">Tasdiqlash</button><button class="btn-reject" onclick="rejectRow(this)">Rad etish</button></div></td>
+            </tr>
+            <tr class="table-row">
+              <td class="py-3 flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#f87171,#dc2626);">AP</div><span class="text-white text-xs">Anna Petrova</span></td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">Sotuv</td>
+              <td class="py-3 text-xs text-white">$5,200</td>
+              <td class="py-3 text-xs" style="color:#34d399;">+$3,500</td>
+              <td class="py-3 text-xs font-bold text-white">$8,700</td>
+              <td class="py-3"><div class="flex gap-2"><button class="btn-approve" onclick="approveRow(this)">Tasdiqlash</button><button class="btn-reject" onclick="rejectRow(this)">Rad etish</button></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ====================================================
+         TA'TIL BOSHQARUVI BO'LIMI
+         ==================================================== -->
+    <section id="section-leave" class="content-section">
+      <div class="mb-6 flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-white">Ta'til Boshqaruvi</h1>
+          <p class="text-sm mt-1" style="color:#6b7280;">Ta'til so'rovlari va tasdiqlashlar</p>
+        </div>
+        <button class="px-4 py-2 rounded-xl text-xs font-semibold" style="background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);">+ Yangi So'rov</button>
+      </div>
+
+      <!-- Statistikalar -->
+      <div class="grid grid-cols-4 gap-5 mb-6">
+        <div class="card"><p class="text-xs font-semibold mb-2" style="color:#6b7280;">TASDIQLANGAN</p><p class="text-3xl font-bold" style="color:#34d399;">47</p><p class="text-xs mt-1" style="color:#6b7280;">Ushbu oy</p></div>
+        <div class="card"><p class="text-xs font-semibold mb-2" style="color:#6b7280;">KUTILMOQDA</p><p class="text-3xl font-bold" style="color:#fbbf24;">13</p><p class="text-xs mt-1" style="color:#6b7280;">Tasdiqlash kerak</p></div>
+        <div class="card"><p class="text-xs font-semibold mb-2" style="color:#6b7280;">RAD ETILGAN</p><p class="text-3xl font-bold" style="color:#f87171;">8</p><p class="text-xs mt-1" style="color:#6b7280;">Ushbu oy</p></div>
+        <div class="card"><p class="text-xs font-semibold mb-2" style="color:#6b7280;">HOZIR TA'TILDA</p><p class="text-3xl font-bold" style="color:#60a5fa;">19</p><p class="text-xs mt-1" style="color:#6b7280;">Xodimlar</p></div>
+      </div>
+
+      <!-- Ta'til so'rovlari jadvali -->
+      <div class="card">
+        <div class="flex items-center justify-between mb-4">
+          <p class="font-semibold text-white">Kutilayotgan Ta'til So'rovlari</p>
+          <div class="flex gap-2">
+            <span class="badge badge-yellow">13 ta kutilmoqda</span>
+          </div>
+        </div>
+        <table class="w-full text-sm">
+          <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">XODIM</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">TA'TIL TURI</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">BOSHLANISHI</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">TUGASHI</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">KUNLAR</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">STATUS</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">AMAL</th>
+          </tr></thead>
+          <tbody>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td class="py-3 flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#f87171,#dc2626);">AP</div><span class="text-white text-xs">Anna Petrova</span></td>
+              <td class="py-3"><span class="badge badge-blue">Yillik</span></td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">25 Noy 2024</td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">30 Noy 2024</td>
+              <td class="py-3 text-xs text-white font-semibold">5</td>
+              <td class="py-3"><span class="badge badge-yellow">Kutilmoqda</span></td>
+              <td class="py-3"><div class="flex gap-2"><button class="btn-approve" onclick="approveLeave(this)">Tasdiqlash</button><button class="btn-reject" onclick="rejectLeave(this)">Rad etish</button></div></td>
+            </tr>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td class="py-3 flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#fbbf24,#d97706);">LN</div><span class="text-white text-xs">Lucas Novak</span></td>
+              <td class="py-3"><span class="badge badge-red">Kasal</span></td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">20 Noy 2024</td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">22 Noy 2024</td>
+              <td class="py-3 text-xs text-white font-semibold">3</td>
+              <td class="py-3"><span class="badge badge-yellow">Kutilmoqda</span></td>
+              <td class="py-3"><div class="flex gap-2"><button class="btn-approve" onclick="approveLeave(this)">Tasdiqlash</button><button class="btn-reject" onclick="rejectLeave(this)">Rad etish</button></div></td>
+            </tr>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td class="py-3 flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#60a5fa,#3b82f6);">JK</div><span class="text-white text-xs">James Kim</span></td>
+              <td class="py-3"><span class="badge badge-purple">Shaxsiy</span></td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">18 Noy 2024</td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">18 Noy 2024</td>
+              <td class="py-3 text-xs text-white font-semibold">1</td>
+              <td class="py-3"><span class="badge badge-yellow">Kutilmoqda</span></td>
+              <td class="py-3"><div class="flex gap-2"><button class="btn-approve" onclick="approveLeave(this)">Tasdiqlash</button><button class="btn-reject" onclick="rejectLeave(this)">Rad etish</button></div></td>
+            </tr>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td class="py-3 flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#34d399,#059669);">MT</div><span class="text-white text-xs">Mia Torres</span></td>
+              <td class="py-3"><span class="badge badge-blue">Yillik</span></td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">4 Noy 2024</td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">8 Noy 2024</td>
+              <td class="py-3 text-xs text-white font-semibold">5</td>
+              <td class="py-3"><span class="badge badge-green">Tasdiqlangan</span></td>
+              <td class="py-3"><span class="text-xs" style="color:#4b5563;">Yakunlangan</span></td>
+            </tr>
+            <tr class="table-row">
+              <td class="py-3 flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#818cf8,#6366f1);">DW</div><span class="text-white text-xs">Derek Wong</span></td>
+              <td class="py-3"><span class="badge badge-yellow">Tasodifiy</span></td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">10 Noy 2024</td>
+              <td class="py-3 text-xs" style="color:#94a3b8;">11 Noy 2024</td>
+              <td class="py-3 text-xs text-white font-semibold">2</td>
+              <td class="py-3"><span class="badge badge-red">Rad etilgan</span></td>
+              <td class="py-3"><span class="text-xs" style="color:#4b5563;">Yakunlangan</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ====================================================
+         ISHGA QABUL BO'LIMI
+         ==================================================== -->
+    <section id="section-recruitment" class="content-section">
+      <div class="mb-6 flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-white">Ishga Qabul</h1>
+          <p class="text-sm mt-1" style="color:#6b7280;">Aktiv vakansiyalar va nomzodlar</p>
+        </div>
+        <button class="px-4 py-2 rounded-xl text-xs font-semibold" style="background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);">+ Yangi Vakansiya</button>
+      </div>
+
+      <!-- Statistikalar -->
+      <div class="grid grid-cols-4 gap-5 mb-6">
+        <div class="card"><p class="text-xs font-semibold mb-2" style="color:#6b7280;">OCHIQ LAVOZIMLAR</p><p class="text-3xl font-bold text-white">34</p><p class="text-xs mt-1" style="color:#fbbf24;">8 ta shoshilinch</p></div>
+        <div class="card"><p class="text-xs font-semibold mb-2" style="color:#6b7280;">JAMI NOMZODLAR</p><p class="text-3xl font-bold text-white">218</p><p class="text-xs mt-1" style="color:#60a5fa;">+45 bu hafta</p></div>
+        <div class="card"><p class="text-xs font-semibold mb-2" style="color:#6b7280;">INTERVYU BOSQICHIDA</p><p class="text-3xl font-bold text-white">42</p><p class="text-xs mt-1" style="color:#a78bfa;">Aktiv jarayon</p></div>
+        <div class="card"><p class="text-xs font-semibold mb-2" style="color:#6b7280;">QABUL QILINGAN</p><p class="text-3xl font-bold text-white">18</p><p class="text-xs mt-1" style="color:#34d399;">Bu oyda</p></div>
+      </div>
+
+      <!-- Vakansiyalar jadvali -->
+      <div class="card">
+        <p class="font-semibold text-white mb-4">Aktiv Vakansiyalar</p>
+        <table class="w-full text-sm">
+          <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">LAVOZIM</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">BO'LIM</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">NOMZODLAR</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">INTERVYULAR</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">MUDDAT</th>
+            <th class="text-left pb-3 text-xs font-semibold" style="color:#4b5563;">STATUS</th>
+          </tr></thead>
+          <tbody>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);"><td class="py-3 text-white text-xs font-medium">Senior React Dasturchi</td><td class="py-3 text-xs" style="color:#94a3b8;">Muhandislik</td><td class="py-3 text-xs text-white">48</td><td class="py-3 text-xs text-white">8</td><td class="py-3 text-xs" style="color:#fbbf24;">15 Noy</td><td class="py-3"><span class="badge badge-red">Shoshilinch</span></td></tr>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);"><td class="py-3 text-white text-xs font-medium">UI/UX Dizayner</td><td class="py-3 text-xs" style="color:#94a3b8;">Dizayn</td><td class="py-3 text-xs text-white">32</td><td class="py-3 text-xs text-white">5</td><td class="py-3 text-xs" style="color:#94a3b8;">30 Noy</td><td class="py-3"><span class="badge badge-yellow">Faol</span></td></tr>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);"><td class="py-3 text-white text-xs font-medium">DevOps Muhandis</td><td class="py-3 text-xs" style="color:#94a3b8;">Muhandislik</td><td class="py-3 text-xs text-white">19</td><td class="py-3 text-xs text-white">3</td><td class="py-3 text-xs" style="color:#f87171;">10 Noy</td><td class="py-3"><span class="badge badge-red">Shoshilinch</span></td></tr>
+            <tr class="table-row" style="border-bottom:1px solid rgba(255,255,255,0.04);"><td class="py-3 text-white text-xs font-medium">Marketing Menejeri</td><td class="py-3 text-xs" style="color:#94a3b8;">Marketing</td><td class="py-3 text-xs text-white">67</td><td class="py-3 text-xs text-white">12</td><td class="py-3 text-xs" style="color:#94a3b8;">5 Dek</td><td class="py-3"><span class="badge badge-green">Yaxshi borish</span></td></tr>
+            <tr class="table-row"><td class="py-3 text-white text-xs font-medium">Moliya Analist</td><td class="py-3 text-xs" style="color:#94a3b8;">Moliya</td><td class="py-3 text-xs text-white">24</td><td class="py-3 text-xs text-white">4</td><td class="py-3 text-xs" style="color:#94a3b8;">20 Dek</td><td class="py-3"><span class="badge badge-blue">Yangi</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div><!-- /kontent -->
+</main>
+
+<!-- ============================================================
+     TOAST BILDIRISHNOMA (JavaScript tomonidan boshqariladi)
+     ============================================================ -->
+<div id="toast"
+  style="position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:600;color:#fff;z-index:9999;display:none;transition:all 0.3s ease;box-shadow:0 8px 24px rgba(0,0,0,0.4);">
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT — NAVIGATSIYA VA INTERAKTIV MANTIQ
+     ============================================================ -->
+<script>
+  // ===== 1. BUGUNGI SANANI KO'RSATISH =====
+  (function() {
+    // Bugungi sanani o'zbekcha formatda ko'rsatamiz
+    const oylar = ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'];
+    const hafta = ['Yakshanba','Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'];
+    const d = new Date();
+    const el = document.getElementById('today-date');
+    if (el) {
+      el.textContent = hafta[d.getDay()] + ', ' + d.getDate() + ' ' + oylar[d.getMonth()] + ' ' + d.getFullYear();
+    }
+  })();
+
+  // ===== 2. NAVIGATSIYA MANTIQ =====
+  // Barcha menyu tugmalari va kontent bo'limlarini olamiz
+  const navButtons = document.querySelectorAll('.nav-btn[data-section]');
+  const contentSections = document.querySelectorAll('.content-section');
+
+  // Menyu tugmasiga bosilganda ishlaydigan funksiya
+  function switchSection(sectionId) {
+    // Barcha bo'limlarni yashiramiz
+    contentSections.forEach(function(section) {
+      section.classList.remove('active');
+    });
+
+    // Barcha tugmalardan "active" klassini olib tashlaymiz
+    navButtons.forEach(function(btn) {
+      btn.classList.remove('active');
+    });
+
+    // Tanlangan bo'limni ko'rsatamiz
+    const target = document.getElementById('section-' + sectionId);
+    if (target) {
+      target.classList.add('active');
+    }
+
+    // Bosilgan tugmani "active" qilamiz
+    const activeBtn = document.querySelector('.nav-btn[data-section="' + sectionId + '"]');
+    if (activeBtn) {
+      activeBtn.classList.add('active');
+    }
+  }
+
+  // Har bir menyu tugmasiga click hodisasi qo'shamiz
+  navButtons.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const section = this.getAttribute('data-section');
+      switchSection(section);
+    });
+  });
+
+  // ===== 3. TOAST BILDIRISHNOMA FUNKSIYASI =====
+  function showToast(xabar, tur) {
+    // tur: 'success' | 'error' | 'warning'
+    const toast = document.getElementById('toast');
+    const ranglar = {
+      success: { bg: 'rgba(16,42,30,0.97)', border: '#34d399', icon: '✓' },
+      error:   { bg: 'rgba(42,16,16,0.97)', border: '#f87171', icon: '✗' },
+      warning: { bg: 'rgba(42,38,10,0.97)', border: '#fbbf24', icon: '!' }
+    };
+    const rang = ranglar[tur] || ranglar.success;
+
+    toast.style.background = rang.bg;
+    toast.style.border = '1px solid ' + rang.border;
+    toast.style.color = rang.border;
+    toast.innerHTML = rang.icon + '  ' + xabar;
+    toast.style.display = 'block';
+    toast.style.opacity = '1';
+
+    // 3 soniyadan keyin yashiramiz
+    setTimeout(function() {
+      toast.style.opacity = '0';
+      setTimeout(function() { toast.style.display = 'none'; }, 300);
+    }, 3000);
+  }
+
+  // ===== 4. MAOSH TASDIQLASH / RAD ETISH =====
+  function approveRow(tugma) {
+    // Tugma qatorini olamiz va statusni yangilaymiz
+    const qator = tugma.closest('tr');
+    const amalCell = tugma.closest('td');
+    // Ism qatoridan nomni olamiz
+    const ism = qator.querySelector('span.text-white') ? qator.querySelector('span.text-white').textContent : 'Xodim';
+
+    // Harakatlar ustunidagi tugmalar o'rniga tasdiqlangan badge ko'rsatamiz
+    amalCell.innerHTML = '<span class="badge badge-green"><i class="fa-solid fa-check mr-1"></i>Tasdiqlandi</span>';
+    showToast(ism + ' — Maosh tasdiqlandi!', 'success');
+  }
+
+  function rejectRow(tugma) {
+    const qator = tugma.closest('tr');
+    const amalCell = tugma.closest('td');
+    const ism = qator.querySelector('span.text-white') ? qator.querySelector('span.text-white').textContent : 'Xodim';
+
+    amalCell.innerHTML = '<span class="badge badge-red"><i class="fa-solid fa-xmark mr-1"></i>Rad etildi</span>';
+    showToast(ism + ' — Maosh rad etildi.', 'error');
+  }
+
+  // Hammasini tasdiqlash tugmasi
+  document.getElementById('btn-approve-all').addEventListener('click', function() {
+    const approveButtons = document.querySelectorAll('#payroll-tbody .btn-approve');
+    approveButtons.forEach(function(btn) {
+      // Faqat hali tugma mavjud bo'lsa bosamiz
+      if (btn && btn.closest('td')) {
+        approveRow(btn);
+      }
+    });
+    showToast('Barcha maoshlar tasdiqlandi!', 'success');
+  });
+
+  // ===== 5. TA'TIL TASDIQLASH / RAD ETISH =====
+  function approveLeave(tugma) {
+    const amalCell = tugma.closest('td');
+    const qator = tugma.closest('tr');
+    const statusCell = qator.querySelectorAll('td')[5]; // Status ustuni
+    const ism = qator.querySelector('span.text-white') ? qator.querySelector('span.text-white').textContent : 'Xodim';
+
+    // Status ustunini yangilaymiz
+    if (statusCell) {
+      statusCell.innerHTML = '<span class="badge badge-green">Tasdiqlangan</span>';
+    }
+    amalCell.innerHTML = '<span class="text-xs" style="color:#4b5563;">Yakunlangan</span>';
+    showToast(ism + ' — Ta\'til so\'rovi tasdiqlandi!', 'success');
+  }
+
+  function rejectLeave(tugma) {
+    const amalCell = tugma.closest('td');
+    const qator = tugma.closest('tr');
+    const statusCell = qator.querySelectorAll('td')[5]; // Status ustuni
+    const ism = qator.querySelector('span.text-white') ? qator.querySelector('span.text-white').textContent : 'Xodim';
+
+    if (statusCell) {
+      statusCell.innerHTML = '<span class="badge badge-red">Rad etilgan</span>';
+    }
+    amalCell.innerHTML = '<span class="text-xs" style="color:#4b5563;">Yakunlangan</span>';
+    showToast(ism + ' — Ta\'til so\'rovi rad etildi.', 'error');
+  }
+
+  // ===== 6. SEARCH INPUTI REAL-VAQT FILTRLASH =====
+  document.querySelector('.search-input').addEventListener('input', function(e) {
+    // Aktiv bo'limdagi jadvallarni filtrlaymiz
+    const qidiruv = e.target.value.toLowerCase();
+    const aktifBolim = document.querySelector('.content-section.active');
+    if (!aktifBolim) return;
+
+    const qatorlar = aktifBolim.querySelectorAll('tbody tr');
+    qatorlar.forEach(function(qator) {
+      const matn = qator.textContent.toLowerCase();
+      qator.style.display = matn.includes(qidiruv) ? '' : 'none';
+    });
+  });
+
+  // ===== 7. BILDIRISHNOMA TUGMASI =====
+  document.querySelector('.fa-bell').parentElement.addEventListener('click', function() {
+    showToast('5 ta yangi bildirishnoma mavjud!', 'warning');
+  });
+</script>
+</body>
+</html>
