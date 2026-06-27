@@ -1,1348 +1,905 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zamaxshariy Izdoshlari — Maktab Boshqaruv Tizimi</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Zamaxshariy Izdoshlari — Admin Panel</title>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+/* ===== O'ZGARUVCHILAR ===== */
+:root{
+  --m:  #10b981; /* Asosiy yashil */
+  --md: #059669; /* To'q yashil */
+  --ml: #d1fae5; /* Och yashil */
+  --mx: #ecfdf5; /* Juda och yashil */
+  --mm: #6ee7b7; /* O'rta yashil */
+  --w:  #ffffff;
+  --g0: #f9fafb;
+  --g1: #f3f4f6;
+  --g2: #e5e7eb;
+  --g3: #d1d5db;
+  --g4: #9ca3af;
+  --g5: #6b7280;
+  --g6: #4b5563;
+  --g7: #374151;
+  --g8: #1f2937;
+  --g9: #111827;
+  --r:  #ef4444;
+  --rl: #fee2e2;
+  --b:  #3b82f6;
+  --bl: #dbeafe;
+  --y:  #f59e0b;
+  --yl: #fef3c7;
+  --p:  #8b5cf6;
+  --pl: #ede9fe;
+}
+*{font-family:'Inter',sans-serif;box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--g0);color:var(--g8);min-height:100vh;display:flex;}
 
-  <!-- Tailwind CSS v4 CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:260px;min-width:260px;background:var(--w);
+  border-right:1px solid var(--g2);
+  height:100vh;position:sticky;top:0;
+  display:flex;flex-direction:column;
+  box-shadow:2px 0 16px rgba(16,185,129,.06);
+  overflow-y:auto;
+}
+.logo-box{
+  width:44px;height:44px;border-radius:14px;
+  background:linear-gradient(135deg,var(--m),var(--md));
+  display:flex;align-items:center;justify-content:center;
+  color:white;font-size:20px;flex-shrink:0;
+  box-shadow:0 4px 14px rgba(16,185,129,.35);
+}
+.nav-btn{
+  display:flex;align-items:center;gap:11px;
+  padding:10px 16px;border-radius:12px;cursor:pointer;
+  font-size:13.5px;font-weight:500;color:var(--g5);
+  transition:all .18s;width:100%;border:none;
+  background:none;text-align:left;margin-bottom:2px;
+}
+.nav-btn:hover{background:var(--mx);color:var(--md);}
+.nav-btn:hover i{color:var(--m);}
+.nav-btn.active{background:var(--mx);color:var(--md);font-weight:700;}
+.nav-btn.active i{color:var(--m);}
+.nav-btn i{width:18px;text-align:center;font-size:13px;color:var(--g4);transition:color .18s;}
 
-  <!-- Google Fonts: Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+/* ===== KONTENT ===== */
+.content-section{display:none;}
+.content-section.active{display:block;}
+.main-wrap{flex:1;display:flex;flex-direction:column;min-width:0;}
+.main-area{flex:1;padding:28px 32px;overflow-y:auto;max-height:calc(100vh - 64px);}
 
-  <!-- Font Awesome ikonkalar -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+/* ===== NAVBAR ===== */
+.top-nav{
+  height:64px;background:var(--w);
+  border-bottom:1px solid var(--g2);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;position:sticky;top:0;z-index:50;
+  box-shadow:0 1px 8px rgba(0,0,0,.05);
+}
+.search-inp{
+  background:var(--g0);border:1.5px solid var(--g2);
+  border-radius:10px;padding:8px 14px 8px 36px;
+  color:var(--g7);font-size:13.5px;width:260px;outline:none;
+  transition:border .2s;
+}
+.search-inp:focus{border-color:var(--m);background:var(--w);}
+.search-inp::placeholder{color:var(--g4);}
 
-  <style>
-    /* ===== GLOBAL STIL O'ZGARUVCHILARI ===== */
-    :root {
-      --mint:        #10b981;   /* Asosiy yashil */
-      --mint-light:  #d1fae5;   /* Och yashil fon */
-      --mint-mid:    #6ee7b7;   /* O'rta yashil */
-      --mint-dark:   #059669;   /* To'q yashil */
-      --mint-xlight: #ecfdf5;   /* Juda och yashil */
-      --white:       #ffffff;
-      --gray-50:     #f9fafb;
-      --gray-100:    #f3f4f6;
-      --gray-200:    #e5e7eb;
-      --gray-300:    #d1d5db;
-      --gray-400:    #9ca3af;
-      --gray-500:    #6b7280;
-      --gray-600:    #4b5563;
-      --gray-700:    #374151;
-      --gray-800:    #1f2937;
-      --gray-900:    #111827;
-      --red:         #ef4444;
-      --red-light:   #fee2e2;
-      --blue:        #3b82f6;
-      --blue-light:  #dbeafe;
-      --yellow:      #f59e0b;
-      --yellow-light:#fef3c7;
-      --purple:      #8b5cf6;
-      --purple-light:#ede9fe;
-    }
+/* ===== KARTA ===== */
+.card{
+  background:var(--w);border:1px solid var(--g2);
+  border-radius:18px;padding:22px;
+  box-shadow:0 1px 6px rgba(0,0,0,.04);
+}
 
-    * { font-family: 'Inter', sans-serif; box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--gray-50); color: var(--gray-800); min-height: 100vh; display: flex; }
+/* ===== KPI RING ===== */
+.kpi-ring{position:relative;width:80px;height:80px;flex-shrink:0;}
+.kpi-ring svg{transform:rotate(-90deg);}
+.kpi-ring-txt{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  text-align:center;pointer-events:none;line-height:1;
+}
 
-    /* ===== SIDEBAR ===== */
-    .sidebar {
-      width: 256px; min-width: 256px; background: var(--white);
-      border-right: 1px solid var(--gray-200);
-      display: flex; flex-direction: column;
-      height: 100vh; position: sticky; top: 0; overflow-y: auto;
-      box-shadow: 2px 0 12px rgba(16,185,129,0.06);
-    }
-    .sidebar-logo {
-      padding: 20px 20px 16px;
-      border-bottom: 1px solid var(--gray-100);
-    }
-    .logo-icon {
-      width: 42px; height: 42px; border-radius: 12px;
-      background: linear-gradient(135deg, var(--mint), var(--mint-dark));
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; color: white; flex-shrink: 0;
-      box-shadow: 0 4px 12px rgba(16,185,129,0.35);
-    }
+/* ===== JADVAL ===== */
+.dtbl{width:100%;border-collapse:collapse;font-size:13px;}
+.dtbl th{
+  text-align:left;padding:10px 14px;
+  font-size:11px;font-weight:700;letter-spacing:.06em;
+  color:var(--g5);border-bottom:1.5px solid var(--g1);
+  background:var(--g0);text-transform:uppercase;
+}
+.dtbl td{padding:11px 14px;border-bottom:1px solid var(--g1);vertical-align:middle;}
+.dtbl tr:last-child td{border-bottom:none;}
+.dtbl tr:hover td{background:var(--mx);}
 
-    /* Navigatsiya tugmasi */
-    .nav-btn {
-      display: flex; align-items: center; gap: 11px;
-      padding: 10px 16px; border-radius: 10px; cursor: pointer;
-      font-size: 13.5px; font-weight: 500; color: var(--gray-600);
-      transition: all 0.18s ease; width: 100%; border: none;
-      background: none; text-align: left; margin-bottom: 2px;
-    }
-    .nav-btn:hover { background: var(--mint-xlight); color: var(--mint-dark); }
-    .nav-btn:hover i { color: var(--mint); }
-    .nav-btn.active { background: var(--mint-xlight); color: var(--mint-dark); font-weight: 600; }
-    .nav-btn.active i { color: var(--mint); }
-    .nav-btn i { width: 18px; text-align: center; font-size: 14px; color: var(--gray-400); transition: color 0.18s; }
-    .nav-badge {
-      margin-left: auto; font-size: 11px; font-weight: 700;
-      padding: 1px 8px; border-radius: 20px;
-      background: var(--mint-light); color: var(--mint-dark);
-    }
+/* ===== BADGE ===== */
+.bdg{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:600;}
+.bdg-g{background:var(--ml);color:var(--md);}
+.bdg-r{background:var(--rl);color:#b91c1c;}
+.bdg-b{background:var(--bl);color:#1d4ed8;}
+.bdg-y{background:var(--yl);color:#92400e;}
+.bdg-p{background:var(--pl);color:#6d28d9;}
+.bdg-gr{background:var(--g1);color:var(--g6);}
 
-    /* ===== KONTENT BO'LIMLARI ===== */
-    .content-section { display: none; }
-    .content-section.active { display: block; }
+/* ===== AVATAR ===== */
+.av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:white;flex-shrink:0;}
 
-    /* ===== ASOSIY KONTENT MAYDONI ===== */
-    .main-wrap { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-    .main-content { flex: 1; padding: 28px 32px; overflow-y: auto; max-height: calc(100vh - 64px); }
+/* ===== TUGMALAR ===== */
+.btn-pr{
+  background:linear-gradient(135deg,var(--m),var(--md));
+  color:white;border:none;padding:9px 18px;border-radius:10px;
+  font-size:13px;font-weight:600;cursor:pointer;
+  transition:all .2s;box-shadow:0 3px 10px rgba(16,185,129,.28);
+}
+.btn-pr:hover{opacity:.9;transform:translateY(-1px);}
+.btn-out{
+  background:transparent;color:var(--md);
+  border:1.5px solid var(--m);padding:7px 16px;
+  border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;
+  transition:all .2s;
+}
+.btn-out:hover{background:var(--mx);}
+.btn-ic{
+  width:34px;height:34px;border-radius:9px;border:1.5px solid var(--g2);
+  background:var(--w);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .2s;color:var(--g5);font-size:13px;
+}
+.btn-ic:hover{background:var(--mx);border-color:var(--m);color:var(--m);}
+.btn-sm{padding:5px 12px;font-size:11.5px;font-weight:600;border-radius:8px;cursor:pointer;border:none;transition:all .18s;}
+.btn-confirm{background:var(--ml);color:var(--md);}
+.btn-confirm:hover{background:var(--mm);color:var(--md);}
+.btn-cancel-pay{background:var(--rl);color:#b91c1c;}
+.btn-cancel-pay:hover{background:#fca5a5;color:#991b1b;}
 
-    /* ===== TOP NAVBAR ===== */
-    .top-nav {
-      height: 64px; background: var(--white);
-      border-bottom: 1px solid var(--gray-200);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 32px; position: sticky; top: 0; z-index: 50;
-      box-shadow: 0 1px 8px rgba(0,0,0,0.05);
-    }
-    .search-wrap { position: relative; }
-    .search-input {
-      background: var(--gray-50); border: 1.5px solid var(--gray-200);
-      border-radius: 10px; padding: 8px 14px 8px 38px;
-      color: var(--gray-700); font-size: 13.5px; width: 280px;
-      outline: none; transition: border 0.2s;
-    }
-    .search-input:focus { border-color: var(--mint); background: var(--white); }
-    .search-input::placeholder { color: var(--gray-400); }
-    .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--gray-400); font-size: 13px; }
+/* ===== SCORE INPUT ===== */
+.score-inp{
+  width:52px;padding:5px 8px;border-radius:8px;text-align:center;
+  font-size:13px;font-weight:600;border:1.5px solid var(--g2);
+  background:var(--g0);color:var(--g8);outline:none;transition:border .2s;
+}
+.score-inp:focus{border-color:var(--m);background:var(--w);}
+.score-inp:disabled{background:var(--rl);border-color:#fca5a5;color:#b91c1c;cursor:not-allowed;}
 
-    /* ===== KARTA ===== */
-    .card {
-      background: var(--white); border: 1px solid var(--gray-200);
-      border-radius: 16px; padding: 22px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.04);
-    }
-    .card-sm { padding: 18px; }
+/* ===== QULF SATRI ===== */
+.locked-row td{background:#fff5f5 !important;opacity:.85;}
+.locked-row:hover td{background:#fee2e2 !important;}
 
-    /* ===== KPI KARTASI ===== */
-    .kpi-card {
-      background: var(--white); border: 1px solid var(--gray-200);
-      border-radius: 16px; padding: 20px;
-      display: flex; flex-direction: column; gap: 12px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.04);
-    }
-    .kpi-ring { position: relative; width: 72px; height: 72px; flex-shrink: 0; }
-    .kpi-ring svg { transform: rotate(-90deg); }
-    .kpi-ring-text {
-      position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 13px; font-weight: 700; text-align: center; line-height: 1;
-    }
+/* ===== TIMETABLE ===== */
+.tt-grid{display:grid;grid-template-columns:70px repeat(6,1fr);gap:5px;}
+.tt-hdr{
+  background:linear-gradient(135deg,var(--m),var(--md));
+  color:white;text-align:center;padding:10px 4px;
+  border-radius:10px;font-size:12px;font-weight:700;
+}
+.tt-time{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--g4);}
+.lb{border-radius:10px;padding:8px 10px;min-height:68px;display:flex;flex-direction:column;justify-content:space-between;border-left:3px solid;cursor:default;}
+.lb-math{background:#eff6ff;border-color:#3b82f6;}
+.lb-ai{background:#f0fdf4;border-color:#10b981;}
+.lb-arb{background:#fff7ed;border-color:#f97316;}
+.lb-it{background:#fdf4ff;border-color:#a855f7;}
+.lb-notq{background:#fffbeb;border-color:#f59e0b;}
+.lb-zak{background:#fff1f2;border-color:#f43f5e;}
+.lb-pe{background:#f0f9ff;border-color:#0ea5e9;}
+.lb-empty{background:var(--g0);border-left:3px solid transparent;min-height:68px;border-radius:10px;}
 
-    /* ===== JADVAL ===== */
-    .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-    .data-table th {
-      text-align: left; padding: 10px 14px; font-size: 11.5px;
-      font-weight: 700; letter-spacing: .06em; color: var(--gray-500);
-      border-bottom: 1.5px solid var(--gray-100); background: var(--gray-50);
-      text-transform: uppercase;
-    }
-    .data-table th:first-child { border-radius: 8px 0 0 0; }
-    .data-table th:last-child { border-radius: 0 8px 0 0; }
-    .data-table td { padding: 12px 14px; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
-    .data-table tr:last-child td { border-bottom: none; }
-    .data-table tr:hover td { background: var(--mint-xlight); }
-    .data-table tr:last-child td:first-child { border-radius: 0 0 0 8px; }
-    .data-table tr:last-child td:last-child { border-radius: 0 0 8px 0; }
+/* ===== SVG CHART ===== */
+.chart-svg{width:100%;overflow:visible;}
 
-    /* ===== BADGE/STATUS ===== */
-    .badge {
-      display: inline-flex; align-items: center; gap: 4px;
-      padding: 3px 10px; border-radius: 20px;
-      font-size: 11.5px; font-weight: 600;
-    }
-    .badge-green  { background: var(--mint-light); color: var(--mint-dark); }
-    .badge-red    { background: var(--red-light); color: #b91c1c; }
-    .badge-blue   { background: var(--blue-light); color: #1d4ed8; }
-    .badge-yellow { background: var(--yellow-light); color: #92400e; }
-    .badge-purple { background: var(--purple-light); color: #6d28d9; }
-    .badge-gray   { background: var(--gray-100); color: var(--gray-600); }
+/* ===== LEADERBOARD ===== */
+.lb-row-1{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid #fbbf24;}
+.lb-row-2{background:linear-gradient(135deg,#f8fafc,#f1f5f9);border:1.5px solid #94a3b8;}
+.lb-row-3{background:linear-gradient(135deg,#fff7ed,#ffedd5);border:1.5px solid #f97316;}
+.lb-row-n{background:var(--w);border:1px solid var(--g2);}
 
-    /* ===== AVATAR ===== */
-    .avatar {
-      width: 34px; height: 34px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 12px; flex-shrink: 0; color: white;
-    }
-    .avatar-lg { width: 44px; height: 44px; font-size: 16px; }
+/* ===== TOAST ===== */
+#toast{
+  position:fixed;bottom:24px;right:24px;z-index:9999;
+  padding:13px 20px;border-radius:14px;font-size:13.5px;font-weight:600;
+  display:none;box-shadow:0 8px 24px rgba(0,0,0,.14);
+  animation:slideUp .3s ease;
+}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
 
-    /* ===== TUGMALAR ===== */
-    .btn-primary {
-      background: linear-gradient(135deg, var(--mint), var(--mint-dark));
-      color: white; border: none; padding: 9px 18px; border-radius: 10px;
-      font-size: 13px; font-weight: 600; cursor: pointer;
-      transition: all 0.2s; box-shadow: 0 3px 10px rgba(16,185,129,0.3);
-    }
-    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 5px 14px rgba(16,185,129,0.4); }
-    .btn-outline {
-      background: transparent; color: var(--mint-dark);
-      border: 1.5px solid var(--mint); padding: 7px 16px;
-      border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-outline:hover { background: var(--mint-xlight); }
-    .btn-icon {
-      width: 36px; height: 36px; border-radius: 10px; border: 1.5px solid var(--gray-200);
-      background: var(--white); display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: all 0.2s; color: var(--gray-500); font-size: 14px;
-    }
-    .btn-icon:hover { background: var(--mint-xlight); border-color: var(--mint); color: var(--mint); }
+/* ===== DATE PICKER BOKS ===== */
+.sana-boks{
+  background:linear-gradient(135deg,#064e3b,#065f46);
+  border-radius:14px;padding:14px 18px;
+}
 
-    /* ===== FILTR TUGMALAR ===== */
-    .filter-btn {
-      padding: 6px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 600;
-      cursor: pointer; border: 1.5px solid var(--gray-200);
-      background: var(--white); color: var(--gray-600); transition: all 0.15s;
-    }
-    .filter-btn:hover, .filter-btn.active {
-      background: var(--mint-xlight); border-color: var(--mint); color: var(--mint-dark);
-    }
+/* ===== PROGRESS BAR ===== */
+.pbar{height:8px;background:var(--g1);border-radius:20px;overflow:hidden;}
+.pbar-fill{height:100%;border-radius:20px;transition:width .5s ease;}
 
-    /* ===== DARS JADVALI GRID ===== */
-    .timetable-grid { display: grid; grid-template-columns: 80px repeat(6, 1fr); gap: 6px; }
-    .timetable-header {
-      background: linear-gradient(135deg, var(--mint), var(--mint-dark));
-      color: white; text-align: center; padding: 10px 6px;
-      border-radius: 10px; font-size: 12px; font-weight: 700;
-    }
-    .timetable-time {
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 600; color: var(--gray-500);
-      padding: 4px;
-    }
-    .lesson-block {
-      border-radius: 10px; padding: 8px 10px; min-height: 72px;
-      display: flex; flex-direction: column; justify-content: space-between;
-      border-left: 3px solid; cursor: pointer; transition: transform 0.15s;
-    }
-    .lesson-block:hover { transform: scale(1.02); }
-    .lesson-math  { background: #eff6ff; border-color: #3b82f6; }
-    .lesson-arabic{ background: #f0fdf4; border-color: #10b981; }
-    .lesson-it    { background: #fdf4ff; border-color: #a855f7; }
-    .lesson-uz    { background: #fffbeb; border-color: #f59e0b; }
-    .lesson-history{background: #fff1f2; border-color: #f43f5e; }
-    .lesson-phys  { background: #f0f9ff; border-color: #0ea5e9; }
-    .lesson-bio   { background: #f0fdf4; border-color: #22c55e; }
-    .lesson-english{background: #f5f3ff; border-color: #8b5cf6; }
-    .lesson-empty { background: var(--gray-50); border-color: transparent; min-height: 72px; border-radius: 10px; }
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--g2);border-radius:10px;}
+::-webkit-scrollbar-thumb:hover{background:var(--mm);}
 
-    /* ===== MOLIYA KARTALAR ===== */
-    .finance-stat {
-      background: var(--white); border: 1px solid var(--gray-200);
-      border-radius: 14px; padding: 18px; text-align: center;
-    }
-    .progress-bar {
-      height: 8px; background: var(--gray-100); border-radius: 20px; overflow: hidden; margin-top: 4px;
-    }
-    .progress-fill { height: 100%; border-radius: 20px; transition: width 0.5s ease; }
-
-    /* ===== E'LON KARTALARI ===== */
-    .notice-card {
-      border-radius: 12px; padding: 14px 16px;
-      border-left: 4px solid; display: flex; align-items: flex-start; gap: 12px;
-    }
-    .notice-info    { background: #eff6ff; border-color: var(--blue); }
-    .notice-warning { background: #fffbeb; border-color: var(--yellow); }
-    .notice-success { background: var(--mint-xlight); border-color: var(--mint); }
-    .notice-error   { background: var(--red-light); border-color: var(--red); }
-
-    /* ===== BAR CHART ===== */
-    .bar-chart-col { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
-    .bar-chart-bar { width: 36px; border-radius: 8px 8px 0 0; transition: height 0.5s ease; position: relative; }
-    .bar-chart-bar:hover::after {
-      content: attr(data-val);
-      position: absolute; top: -24px; left: 50%; transform: translateX(-50%);
-      background: var(--gray-800); color: white; font-size: 11px; font-weight: 600;
-      padding: 2px 7px; border-radius: 6px; white-space: nowrap;
-    }
-
-    /* ===== TOAST BILDIRISHNOMA ===== */
-    #toast {
-      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
-      padding: 13px 20px; border-radius: 12px; font-size: 13.5px; font-weight: 600;
-      display: none; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-      animation: slideUp 0.3s ease;
-    }
-    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-    /* ===== SCROLL ===== */
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--mint-mid); }
-
-    /* ===== MODALI ===== */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.4);
-      z-index: 1000; display: none; align-items: center; justify-content: center;
-    }
-    .modal-overlay.open { display: flex; }
-    .modal-box {
-      background: white; border-radius: 20px; padding: 28px;
-      width: 500px; max-width: 95vw; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-    }
-
-    /* ===== SEKCIYA SARLAVHASI ===== */
-    .section-title { font-size: 22px; font-weight: 800; color: var(--gray-800); }
-    .section-sub   { font-size: 13.5px; color: var(--gray-500); margin-top: 2px; }
-
-    /* ===== ASOSIY KPI RANG QATLAMLAR ===== */
-    .kpi-bg-1 { background: linear-gradient(135deg, #ecfdf5, #d1fae5); }
-    .kpi-bg-2 { background: linear-gradient(135deg, #eff6ff, #dbeafe); }
-    .kpi-bg-3 { background: linear-gradient(135deg, #fdf4ff, #ede9fe); }
-    .kpi-bg-4 { background: linear-gradient(135deg, #fffbeb, #fef3c7); }
-  </style>
+/* Sana simulyatori inputi */
+.date-sim-inp{
+  padding:7px 14px;border-radius:10px;
+  border:1.5px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.12);color:white;
+  font-size:13px;font-weight:600;outline:none;
+  transition:border .2s;
+}
+.date-sim-inp:focus{border-color:var(--mm);}
+</style>
 </head>
 <body>
 
 <!-- ============================================================
-     CHAP SIDEBAR
-     ============================================================ -->
+  CHAP SIDEBAR
+============================================================ -->
 <aside class="sidebar">
-  <!-- Logo va Brend -->
-  <div class="sidebar-logo">
-    <div class="flex items-center gap-3">
-      <div class="logo-icon">
-        <i class="fa-solid fa-graduation-cap"></i>
-      </div>
+  <!-- Logotip va Admin -->
+  <div style="padding:20px 20px 16px;border-bottom:1px solid var(--g1);">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="logo-box"><i class="fa-solid fa-graduation-cap"></i></div>
       <div>
-        <p class="font-bold text-sm leading-tight" style="color:var(--gray-800);">Zamaxshariy</p>
-        <p class="font-bold text-sm leading-tight" style="color:var(--mint-dark);">Izdoshlari</p>
-        <p class="text-xs mt-0.5" style="color:var(--gray-400);">Xususiy Maktab</p>
+        <p class="font-black text-sm leading-tight" style="color:var(--g9);">Zamaxshariy</p>
+        <p class="font-bold text-sm" style="color:var(--md);">Izdoshlari</p>
+      </div>
+    </div>
+    <!-- Admin profil mini -->
+    <div class="flex items-center gap-2.5 p-2.5 rounded-xl" style="background:var(--mx);">
+      <div class="av" style="background:linear-gradient(135deg,var(--m),var(--md));width:36px;height:36px;font-size:13px;">AA</div>
+      <div>
+        <p class="text-xs font-bold" style="color:var(--g8);">Abrorjon Abdusalimov</p>
+        <p class="text-xs" style="color:var(--md);">Maktab Direktori</p>
       </div>
     </div>
   </div>
 
-  <!-- Navigatsiya Menyusi -->
-  <nav class="p-3 flex-1">
-    <p class="text-xs font-bold px-2 mb-2 mt-2" style="color:var(--gray-400);letter-spacing:.08em;">ASOSIY MENYU</p>
-
-    <button class="nav-btn active" data-section="dashboard">
-      <i class="fa-solid fa-chart-pie"></i>
-      Dashboard
+  <!-- Navigatsiya -->
+  <nav style="padding:12px 12px;flex:1;">
+    <p class="text-xs font-bold px-2 mb-2" style="color:var(--g4);letter-spacing:.08em;">ASOSIY MENYU</p>
+    <button class="nav-btn active" data-sec="dashboard">
+      <i class="fa-solid fa-chart-pie"></i>Dashboard
     </button>
-    <button class="nav-btn" data-section="students">
-      <i class="fa-solid fa-user-graduate"></i>
-      O'quvchilar
-      <span class="nav-badge">450</span>
+    <button class="nav-btn" data-sec="students">
+      <i class="fa-solid fa-user-graduate"></i>O'quvchilar Bazasi
     </button>
-    <button class="nav-btn" data-section="teachers">
-      <i class="fa-solid fa-chalkboard-teacher"></i>
-      O'qituvchilar
-      <span class="nav-badge">35</span>
+    <button class="nav-btn" data-sec="journal">
+      <i class="fa-solid fa-book-open"></i>Baholash Jurnali
     </button>
-    <button class="nav-btn" data-section="timetable">
-      <i class="fa-solid fa-calendar-week"></i>
-      Dars Jadvali
+    <button class="nav-btn" data-sec="leaderboard">
+      <i class="fa-solid fa-trophy"></i>Reyting (Leaderboard)
     </button>
-    <button class="nav-btn" data-section="exams">
-      <i class="fa-solid fa-file-pen"></i>
-      Imtihonlar
+    <button class="nav-btn" data-sec="timetable">
+      <i class="fa-solid fa-calendar-week"></i>Dars Jadvali
     </button>
-    <button class="nav-btn" data-section="finance">
-      <i class="fa-solid fa-wallet"></i>
-      Moliya
-    </button>
-    <button class="nav-btn" data-section="settings">
-      <i class="fa-solid fa-gear"></i>
-      Sozlamalar
+    <button class="nav-btn" data-sec="settings">
+      <i class="fa-solid fa-gear"></i>Admin Sozlamalari
     </button>
   </nav>
 
   <!-- Sidebar pastki banner -->
-  <div class="m-3 rounded-2xl p-4" style="background:linear-gradient(135deg,#064e3b,#065f46);">
+  <div style="margin:12px;border-radius:14px;padding:16px;background:linear-gradient(135deg,#064e3b,#065f46);">
     <div class="flex items-center gap-2 mb-2">
-      <i class="fa-solid fa-star text-yellow-300 text-sm"></i>
-      <p class="text-white font-bold text-xs">2024 Yilning Yutuqlari</p>
+      <i class="fa-solid fa-star" style="color:#fbbf24;font-size:13px;"></i>
+      <p class="text-white font-bold text-xs">2024 Yutuqlar</p>
     </div>
-    <div class="flex flex-col gap-1.5">
-      <div class="flex items-center gap-2">
-        <i class="fa-solid fa-trophy text-xs" style="color:#6ee7b7;"></i>
-        <p class="text-xs" style="color:#a7f3d0;">Viloyat olimpiadasi — 1-o'rin</p>
-      </div>
-      <div class="flex items-center gap-2">
-        <i class="fa-solid fa-medal text-xs" style="color:#6ee7b7;"></i>
-        <p class="text-xs" style="color:#a7f3d0;">96% universitetga kirish</p>
-      </div>
-      <div class="flex items-center gap-2">
-        <i class="fa-solid fa-award text-xs" style="color:#6ee7b7;"></i>
-        <p class="text-xs" style="color:#a7f3d0;">Eng yaxshi maktab unvoni</p>
-      </div>
-    </div>
-    <div class="mt-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.1);">
-      <p class="text-xs text-center" style="color:#6ee7b7;font-style:italic;">"Ilm — yuksalishning tayanchi"</p>
-    </div>
+    <p class="text-xs mb-1" style="color:#6ee7b7;"><i class="fa-solid fa-trophy text-xs mr-1"></i>Viloyat olimpiadasi — 1-o'rin</p>
+    <p class="text-xs mb-1" style="color:#6ee7b7;"><i class="fa-solid fa-medal text-xs mr-1"></i>96% universitetga kirish</p>
+    <p class="text-xs" style="color:#6ee7b7;"><i class="fa-solid fa-award text-xs mr-1"></i>Eng yaxshi maktab unvoni</p>
+    <p class="text-xs text-center mt-3 italic" style="color:#a7f3d0;">"Ilm — yuksalishning tayanchi"</p>
   </div>
 </aside>
 
 <!-- ============================================================
-     O'NG ASOSIY MAYDONI
-     ============================================================ -->
+  O'NG ASOSIY MAYDONI
+============================================================ -->
 <div class="main-wrap">
 
   <!-- TOP NAVBAR -->
   <header class="top-nav">
-    <!-- Qidiruv -->
-    <div class="search-wrap">
-      <i class="fa-solid fa-magnifying-glass search-icon"></i>
-      <input type="text" class="search-input" placeholder="O'quvchi, o'qituvchi yoki sinfni qidiring…" id="globalSearch" />
+    <div class="relative">
+      <i class="fa-solid fa-magnifying-glass absolute text-xs" style="left:12px;top:50%;transform:translateY(-50%);color:var(--g4);"></i>
+      <input type="text" class="search-inp" placeholder="O'quvchi yoki o'qituvchi qidiring…" id="globalSearch"/>
     </div>
-
-    <!-- O'ng: harakatlar + profil -->
     <div class="flex items-center gap-3">
-      <!-- Bildirishnomalar -->
-      <button class="btn-icon relative" id="notifBtn" title="Bildirishnomalar">
-        <i class="fa-solid fa-bell"></i>
-        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-white text-xs font-bold"
-          style="background:var(--red);font-size:9px;">7</span>
-      </button>
-
-      <!-- Xabarlar -->
-      <button class="btn-icon" title="Xabarlar">
-        <i class="fa-solid fa-envelope"></i>
-      </button>
-
-      <!-- Ajratgich -->
-      <div style="width:1px;height:28px;background:var(--gray-200);"></div>
-
-      <!-- Admin profil -->
-      <div class="flex items-center gap-2.5 cursor-pointer" onclick="showToast('Profil sozlamalari ochilmoqda…','info')">
-        <div class="avatar" style="background:linear-gradient(135deg,#10b981,#059669);width:36px;height:36px;font-size:13px;">AA</div>
+      <!-- Sana Simulyatori -->
+      <div class="sana-boks flex items-center gap-3">
         <div>
-          <p class="text-sm font-semibold" style="color:var(--gray-800);">Abrorjon Abdusalimov</p>
-          <p class="text-xs" style="color:var(--mint-dark);">Maktab Direktori / Admin</p>
+          <p class="text-xs font-bold" style="color:#6ee7b7;">🗓 Tizim Sanasi Simulyatori</p>
+          <p class="text-xs" style="color:rgba(255,255,255,.6);">Deadlineʼni sinash uchun</p>
         </div>
-        <i class="fa-solid fa-chevron-down text-xs ml-1" style="color:var(--gray-400);"></i>
+        <input type="number" id="simDay" min="1" max="31" value="4"
+          class="date-sim-inp w-16 text-center"
+          title="Oyning kuni (1–31)"
+          oninput="applyDeadlineLock()"/>
+        <span style="color:rgba(255,255,255,.7);font-size:13px;font-weight:600;">-kun</span>
+      </div>
+      <!-- Bildirishnomalar -->
+      <button class="btn-ic relative" title="Bildirishnomalar">
+        <i class="fa-solid fa-bell"></i>
+        <span style="position:absolute;top:-3px;right:-3px;width:16px;height:16px;background:var(--r);border-radius:50%;font-size:9px;font-weight:700;color:white;display:flex;align-items:center;justify-content:center;">5</span>
+      </button>
+      <button class="btn-ic" title="Sozlamalar" onclick="switchTo('settings')">
+        <i class="fa-solid fa-gear"></i>
+      </button>
+      <div style="width:1px;height:28px;background:var(--g2);"></div>
+      <div class="flex items-center gap-2 cursor-pointer">
+        <div class="av" style="background:linear-gradient(135deg,var(--m),var(--md));width:36px;height:36px;font-size:13px;">AA</div>
+        <div>
+          <p class="text-sm font-semibold" style="color:var(--g8);">Abrorjon Abdusalimov</p>
+          <p class="text-xs" style="color:var(--md);">Admin / Direktor</p>
+        </div>
       </div>
     </div>
   </header>
 
   <!-- KONTENT MAYDONLARI -->
-  <main class="main-content">
+  <main class="main-area">
 
-    <!-- ====================================================
-         A. DASHBOARD
-         ==================================================== -->
-    <section id="section-dashboard" class="content-section active">
+    <!-- ==================================================
+      A. DASHBOARD
+    ================================================== -->
+    <section id="sec-dashboard" class="content-section active">
 
-      <!-- Sarlavha -->
       <div class="flex items-center justify-between mb-7">
         <div>
-          <h1 class="section-title">Assalomu alaykum, Abrorjon! 👋</h1>
-          <p class="section-sub">Bugungi maktab ko'rsatkichlariga umumiy nazar</p>
+          <h1 style="font-size:22px;font-weight:900;color:var(--g8);">Bosh Sahifa</h1>
+          <p style="font-size:13.5px;color:var(--g5);margin-top:2px;">Maktabning bugungi umumiy holati</p>
         </div>
-        <div class="flex gap-2">
-          <button class="btn-outline" onclick="showToast('Hisobot yuklanmoqda…','success')">
-            <i class="fa-solid fa-download mr-1.5"></i>Hisobot
-          </button>
-          <button class="btn-primary" onclick="showToast('Yangi e\'lon qo\'shildi!','success')">
-            <i class="fa-solid fa-plus mr-1.5"></i>E'lon Qo'shish
-          </button>
-        </div>
+        <button class="btn-pr" onclick="toast('Hisobot yuklanmoqda…','g')">
+          <i class="fa-solid fa-download mr-1.5"></i>Hisobot Yuklab Olish
+        </button>
       </div>
 
-      <!-- 4 KPI Kartalar -->
+      <!-- KPI Kartalar (4 ta) -->
       <div class="grid grid-cols-4 gap-5 mb-7">
 
-        <!-- O'quvchilar -->
-        <div class="kpi-card kpi-bg-1">
+        <!-- 1. Kunlik Davomat -->
+        <div class="card flex flex-col gap-3" style="background:linear-gradient(135deg,#ecfdf5,#d1fae5);">
           <div class="flex items-start justify-between">
             <div>
-              <p class="text-xs font-bold uppercase tracking-wide" style="color:var(--mint-dark);">Jami O'quvchilar</p>
-              <p class="text-3xl font-black mt-1" style="color:var(--gray-800);">450</p>
-              <p class="text-xs mt-1" style="color:var(--mint-dark);"><i class="fa-solid fa-arrow-up mr-1"></i>+18 bu chorak</p>
+              <p style="font-size:11px;font-weight:700;color:var(--md);text-transform:uppercase;letter-spacing:.06em;">Kunlik Davomat</p>
+              <p style="font-size:32px;font-weight:900;color:var(--g8);line-height:1.1;margin-top:4px;">96%</p>
+              <p style="font-size:11.5px;color:var(--md);margin-top:2px;"><i class="fa-solid fa-arrow-up mr-1"></i>+2% kecha</p>
             </div>
             <div class="kpi-ring">
-              <svg viewBox="0 0 72 72" width="72" height="72">
-                <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(16,185,129,0.15)" stroke-width="7"/>
-                <circle cx="36" cy="36" r="30" fill="none" stroke="#10b981" stroke-width="7"
-                  stroke-dasharray="188.5" stroke-dashoffset="22.6" stroke-linecap="round"/>
+              <svg viewBox="0 0 80 80" width="80" height="80">
+                <circle cx="40" cy="40" r="33" fill="none" stroke="rgba(16,185,129,.15)" stroke-width="8"/>
+                <circle cx="40" cy="40" r="33" fill="none" stroke="#10b981" stroke-width="8"
+                  stroke-dasharray="207.3" stroke-dashoffset="8.3" stroke-linecap="round"/>
               </svg>
-              <div class="kpi-ring-text" style="color:var(--mint-dark);">88%</div>
+              <div class="kpi-ring-txt"><span style="font-size:13px;font-weight:800;color:var(--md);">96%</span></div>
             </div>
           </div>
-          <div class="flex gap-3 text-xs" style="color:var(--gray-500);">
-            <span><i class="fa-solid fa-mars mr-1" style="color:#3b82f6;"></i>242 o'g'il</span>
-            <span><i class="fa-solid fa-venus mr-1" style="color:#ec4899;"></i>208 qiz</span>
+          <div style="font-size:11.5px;color:var(--g5);">
+            <span style="color:var(--md);font-weight:600;">432</span> ta keldi •
+            <span style="color:var(--r);font-weight:600;">18</span> ta kelmadi
           </div>
         </div>
 
-        <!-- O'qituvchilar -->
-        <div class="kpi-card kpi-bg-2">
+        <!-- 2. O'rt. O'zlashtirish -->
+        <div class="card flex flex-col gap-3" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);">
           <div class="flex items-start justify-between">
             <div>
-              <p class="text-xs font-bold uppercase tracking-wide" style="color:#1d4ed8;">O'qituvchilar</p>
-              <p class="text-3xl font-black mt-1" style="color:var(--gray-800);">35</p>
-              <p class="text-xs mt-1" style="color:#2563eb;"><i class="fa-solid fa-check mr-1"></i>32 ta faol</p>
+              <p style="font-size:11px;font-weight:700;color:#1d4ed8;text-transform:uppercase;letter-spacing:.06em;">O'rt. O'zlashtirish</p>
+              <p style="font-size:32px;font-weight:900;color:var(--g8);line-height:1.1;margin-top:4px;">88%</p>
+              <p style="font-size:11.5px;color:#2563eb;margin-top:2px;"><i class="fa-solid fa-arrow-up mr-1"></i>+5% o'tgan oydan</p>
             </div>
             <div class="kpi-ring">
-              <svg viewBox="0 0 72 72" width="72" height="72">
-                <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(59,130,246,0.15)" stroke-width="7"/>
-                <circle cx="36" cy="36" r="30" fill="none" stroke="#3b82f6" stroke-width="7"
-                  stroke-dasharray="188.5" stroke-dashoffset="32.4" stroke-linecap="round"/>
+              <svg viewBox="0 0 80 80" width="80" height="80">
+                <circle cx="40" cy="40" r="33" fill="none" stroke="rgba(59,130,246,.15)" stroke-width="8"/>
+                <circle cx="40" cy="40" r="33" fill="none" stroke="#3b82f6" stroke-width="8"
+                  stroke-dasharray="207.3" stroke-dashoffset="24.9" stroke-linecap="round"/>
               </svg>
-              <div class="kpi-ring-text" style="color:#1d4ed8;">91%</div>
+              <div class="kpi-ring-txt"><span style="font-size:13px;font-weight:800;color:#1d4ed8;">88%</span></div>
             </div>
           </div>
-          <div class="flex gap-3 text-xs" style="color:var(--gray-500);">
-            <span><i class="fa-solid fa-star mr-1" style="color:#f59e0b;"></i>18 oliy toifali</span>
-            <span><i class="fa-solid fa-user-times mr-1" style="color:var(--red);"></i>3 ta ta'tilda</span>
+          <div style="font-size:11.5px;color:var(--g5);">
+            30 ballik tizim bo'yicha •
+            <span style="color:#1d4ed8;font-weight:600;">o'rt: 26.4 ball</span>
           </div>
         </div>
 
-        <!-- Sinflar -->
-        <div class="kpi-card kpi-bg-3">
+        <!-- 3. Shartnoma Yig'imi -->
+        <div class="card flex flex-col gap-3" style="background:linear-gradient(135deg,#fffbeb,#fef3c7);">
           <div class="flex items-start justify-between">
             <div>
-              <p class="text-xs font-bold uppercase tracking-wide" style="color:#6d28d9;">Sinflar</p>
-              <p class="text-3xl font-black mt-1" style="color:var(--gray-800);">18</p>
-              <p class="text-xs mt-1" style="color:#7c3aed;"><i class="fa-solid fa-door-open mr-1"></i>1-11 sinflar</p>
+              <p style="font-size:11px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.06em;">Shartnoma Yig'imi</p>
+              <p style="font-size:32px;font-weight:900;color:var(--g8);line-height:1.1;margin-top:4px;">75%</p>
+              <p style="font-size:11.5px;color:#d97706;margin-top:2px;"><i class="fa-solid fa-arrow-down mr-1"></i>−3% maqsaddan</p>
             </div>
             <div class="kpi-ring">
-              <svg viewBox="0 0 72 72" width="72" height="72">
-                <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(139,92,246,0.15)" stroke-width="7"/>
-                <circle cx="36" cy="36" r="30" fill="none" stroke="#8b5cf6" stroke-width="7"
-                  stroke-dasharray="188.5" stroke-dashoffset="56.6" stroke-linecap="round"/>
+              <svg viewBox="0 0 80 80" width="80" height="80">
+                <circle cx="40" cy="40" r="33" fill="none" stroke="rgba(245,158,11,.18)" stroke-width="8"/>
+                <circle cx="40" cy="40" r="33" fill="none" stroke="#f59e0b" stroke-width="8"
+                  stroke-dasharray="207.3" stroke-dashoffset="51.8" stroke-linecap="round"/>
               </svg>
-              <div class="kpi-ring-text" style="color:#6d28d9;">70%</div>
+              <div class="kpi-ring-txt"><span style="font-size:13px;font-weight:800;color:#92400e;">75%</span></div>
             </div>
           </div>
-          <div class="flex gap-3 text-xs" style="color:var(--gray-500);">
-            <span><i class="fa-solid fa-users mr-1"></i>~25 o'quvchi/sinf</span>
+          <div style="font-size:11.5px;color:var(--g5);">
+            <span style="color:var(--md);font-weight:600;">337</span> to'lagan •
+            <span style="color:var(--r);font-weight:600;">113</span> qarzdor
           </div>
         </div>
 
-        <!-- Oylik Kirim -->
-        <div class="kpi-card kpi-bg-4">
+        <!-- 4. Faol Sinflar -->
+        <div class="card flex flex-col gap-3" style="background:linear-gradient(135deg,#fdf4ff,#ede9fe);">
           <div class="flex items-start justify-between">
             <div>
-              <p class="text-xs font-bold uppercase tracking-wide" style="color:#92400e;">Oylik Kirim</p>
-              <p class="text-3xl font-black mt-1" style="color:var(--gray-800);">92%</p>
-              <p class="text-xs mt-1" style="color:#d97706;"><i class="fa-solid fa-arrow-up mr-1"></i>+4% o'tgan oydan</p>
+              <p style="font-size:11px;font-weight:700;color:#6d28d9;text-transform:uppercase;letter-spacing:.06em;">Faol Sinflar</p>
+              <p style="font-size:32px;font-weight:900;color:var(--g8);line-height:1.1;margin-top:4px;">4 ta</p>
+              <p style="font-size:11.5px;color:#7c3aed;margin-top:2px;"><i class="fa-solid fa-check mr-1"></i>Barcha sinflar faol</p>
             </div>
             <div class="kpi-ring">
-              <svg viewBox="0 0 72 72" width="72" height="72">
-                <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(245,158,11,0.15)" stroke-width="7"/>
-                <circle cx="36" cy="36" r="30" fill="none" stroke="#f59e0b" stroke-width="7"
-                  stroke-dasharray="188.5" stroke-dashoffset="15.1" stroke-linecap="round"/>
+              <svg viewBox="0 0 80 80" width="80" height="80">
+                <circle cx="40" cy="40" r="33" fill="none" stroke="rgba(139,92,246,.18)" stroke-width="8"/>
+                <circle cx="40" cy="40" r="33" fill="none" stroke="#8b5cf6" stroke-width="8"
+                  stroke-dasharray="207.3" stroke-dashoffset="0" stroke-linecap="round"/>
               </svg>
-              <div class="kpi-ring-text" style="color:#92400e;">92%</div>
+              <div class="kpi-ring-txt"><span style="font-size:12px;font-weight:800;color:#6d28d9;">100%</span></div>
             </div>
           </div>
-          <div class="flex gap-3 text-xs" style="color:var(--gray-500);">
-            <span><i class="fa-solid fa-circle-xmark mr-1" style="color:var(--red);"></i>36 ta qarzdor</span>
+          <div class="flex gap-1.5" style="font-size:11.5px;">
+            <span class="bdg bdg-p">5-sinf</span>
+            <span class="bdg bdg-p">6-sinf</span>
+            <span class="bdg bdg-p">7-sinf</span>
+            <span class="bdg bdg-p">8-sinf</span>
           </div>
         </div>
       </div>
 
-      <!-- Grafik + E'lonlar -->
+      <!-- Grafiklar qatori -->
       <div class="grid grid-cols-3 gap-5 mb-7">
 
-        <!-- SVG Chiziqli Grafik -->
+        <!-- Oylik balans SVG chiziq grafigi -->
         <div class="card col-span-2">
           <div class="flex items-center justify-between mb-5">
             <div>
-              <p class="font-bold text-base" style="color:var(--gray-800);">O'quvchilar Davomati</p>
-              <p class="text-xs mt-0.5" style="color:var(--gray-400);">2024-yil oylar bo'yicha davomat foizi (%)</p>
+              <p style="font-size:15px;font-weight:700;color:var(--g8);">Oylik Shartnoma Balansi</p>
+              <p style="font-size:12px;color:var(--g4);margin-top:2px;">2024 yil — so'mda (millionlab)</p>
             </div>
-            <div class="flex gap-4 text-xs" style="color:var(--gray-500);">
-              <div class="flex items-center gap-1.5"><div style="width:10px;height:10px;border-radius:50%;background:var(--mint);"></div>2024</div>
-              <div class="flex items-center gap-1.5"><div style="width:10px;height:10px;border-radius:50%;background:#93c5fd;"></div>2023</div>
+            <div class="flex gap-3 text-xs" style="color:var(--g5);">
+              <div class="flex items-center gap-1.5">
+                <div style="width:10px;height:10px;border-radius:50%;background:var(--m);"></div>Kirim
+              </div>
+              <div class="flex items-center gap-1.5">
+                <div style="width:10px;height:10px;border-radius:50%;background:#3b82f6;"></div>Chiqim
+              </div>
             </div>
           </div>
-          <svg viewBox="0 0 560 160" style="width:100%;height:160px;" preserveAspectRatio="none">
+          <svg class="chart-svg" viewBox="0 0 560 160" style="height:160px;" preserveAspectRatio="none">
             <defs>
-              <linearGradient id="grad2024" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" style="stop-color:#10b981;stop-opacity:0.25"/>
+              <linearGradient id="gKirim" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" style="stop-color:#10b981;stop-opacity:.25"/>
                 <stop offset="100%" style="stop-color:#10b981;stop-opacity:0"/>
               </linearGradient>
-              <linearGradient id="grad2023" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.15"/>
+              <linearGradient id="gChiqim" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:.18"/>
                 <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0"/>
               </linearGradient>
             </defs>
-            <!-- 2023 area -->
-            <path d="M0,90 C47,88 93,82 140,85 C187,88 233,78 280,80 C327,82 373,72 420,74 C467,76 513,70 560,68 L560,155 L0,155 Z" fill="url(#grad2023)"/>
-            <path d="M0,90 C47,88 93,82 140,85 C187,88 233,78 280,80 C327,82 373,72 420,74 C467,76 513,70 560,68" fill="none" stroke="#93c5fd" stroke-width="2" stroke-dasharray="6,4"/>
-            <!-- 2024 area -->
-            <path d="M0,80 C47,74 93,65 140,60 C187,55 233,48 280,50 C327,52 373,42 420,38 C467,34 513,28 560,24 L560,155 L0,155 Z" fill="url(#grad2024)"/>
-            <path d="M0,80 C47,74 93,65 140,60 C187,55 233,48 280,50 C327,52 373,42 420,38 C467,34 513,28 560,24" fill="none" stroke="#10b981" stroke-width="2.5"/>
-            <!-- Nuqtalar -->
-            <circle cx="0"   cy="80" r="4" fill="white" stroke="#10b981" stroke-width="2.5"/>
-            <circle cx="80"  cy="64" r="4" fill="white" stroke="#10b981" stroke-width="2.5"/>
-            <circle cx="160" cy="58" r="4" fill="white" stroke="#10b981" stroke-width="2.5"/>
-            <circle cx="240" cy="49" r="4" fill="white" stroke="#10b981" stroke-width="2.5"/>
-            <circle cx="320" cy="51" r="4" fill="white" stroke="#10b981" stroke-width="2.5"/>
-            <circle cx="400" cy="40" r="4" fill="white" stroke="#10b981" stroke-width="2.5"/>
-            <circle cx="480" cy="30" r="4" fill="white" stroke="#10b981" stroke-width="2.5"/>
-            <circle cx="560" cy="24" r="4" fill="white" stroke="#10b981" stroke-width="2.5"/>
+            <!-- Kirim area -->
+            <path d="M0,100 C47,90 93,75 140,70 C187,65 233,55 280,52 C327,49 373,40 420,36 C467,32 513,28 560,22 L560,155 L0,155Z" fill="url(#gKirim)"/>
+            <path d="M0,100 C47,90 93,75 140,70 C187,65 233,55 280,52 C327,49 373,40 420,36 C467,32 513,28 560,22" fill="none" stroke="#10b981" stroke-width="2.5"/>
+            <!-- Chiqim area -->
+            <path d="M0,115 C47,108 93,100 140,98 C187,96 233,90 280,88 C327,86 373,80 420,78 C467,76 513,72 560,70 L560,155 L0,155Z" fill="url(#gChiqim)"/>
+            <path d="M0,115 C47,108 93,100 140,98 C187,96 233,90 280,88 C327,86 373,80 420,78 C467,76 513,72 560,70" fill="none" stroke="#3b82f6" stroke-width="2" stroke-dasharray="6,3"/>
+            <!-- Kirim nuqtalar -->
+            <circle cx="0" cy="100" r="4" fill="white" stroke="#10b981" stroke-width="2.5"/>
+            <circle cx="80" cy="75" r="4" fill="white" stroke="#10b981" stroke-width="2.5"/>
+            <circle cx="160" cy="68" r="4" fill="white" stroke="#10b981" stroke-width="2.5"/>
+            <circle cx="240" cy="53" r="4" fill="white" stroke="#10b981" stroke-width="2.5"/>
+            <circle cx="320" cy="50" r="4" fill="white" stroke="#10b981" stroke-width="2.5"/>
+            <circle cx="400" cy="37" r="4" fill="white" stroke="#10b981" stroke-width="2.5"/>
+            <circle cx="480" cy="29" r="4" fill="white" stroke="#10b981" stroke-width="2.5"/>
+            <circle cx="560" cy="22" r="4" fill="white" stroke="#10b981" stroke-width="2.5"/>
             <!-- Oylar -->
-            <text x="0"   y="150" font-size="10" fill="#9ca3af" font-family="Inter">Yan</text>
-            <text x="72"  y="150" font-size="10" fill="#9ca3af" font-family="Inter">Fev</text>
-            <text x="150" y="150" font-size="10" fill="#9ca3af" font-family="Inter">Mar</text>
-            <text x="228" y="150" font-size="10" fill="#9ca3af" font-family="Inter">Apr</text>
-            <text x="308" y="150" font-size="10" fill="#9ca3af" font-family="Inter">May</text>
-            <text x="388" y="150" font-size="10" fill="#9ca3af" font-family="Inter">Iyn</text>
-            <text x="468" y="150" font-size="10" fill="#9ca3af" font-family="Inter">Iyl</text>
-            <text x="548" y="150" font-size="10" fill="#9ca3af" font-family="Inter">Avg</text>
+            <text x="0"   y="152" font-size="9" fill="#9ca3af" font-family="Inter">Yan</text>
+            <text x="73"  y="152" font-size="9" fill="#9ca3af" font-family="Inter">Fev</text>
+            <text x="152" y="152" font-size="9" fill="#9ca3af" font-family="Inter">Mar</text>
+            <text x="231" y="152" font-size="9" fill="#9ca3af" font-family="Inter">Apr</text>
+            <text x="311" y="152" font-size="9" fill="#9ca3af" font-family="Inter">May</text>
+            <text x="392" y="152" font-size="9" fill="#9ca3af" font-family="Inter">Iyn</text>
+            <text x="472" y="152" font-size="9" fill="#9ca3af" font-family="Inter">Iyl</text>
+            <text x="549" y="152" font-size="9" fill="#9ca3af" font-family="Inter">Avg</text>
           </svg>
-          <!-- Raqamli ko'rsatkichlar -->
-          <div class="grid grid-cols-4 gap-3 mt-4">
-            <div class="rounded-xl p-3" style="background:var(--mint-xlight);">
-              <p class="text-xs" style="color:var(--gray-500);">O'rt. davomat</p>
-              <p class="text-lg font-bold" style="color:var(--mint-dark);">94.2%</p>
+          <!-- Qisqacha raqamlar -->
+          <div class="grid grid-cols-3 gap-3" style="margin-top:16px;">
+            <div style="background:var(--mx);border-radius:12px;padding:12px;">
+              <p style="font-size:11px;color:var(--g5);">Jami kirim (Okt)</p>
+              <p style="font-size:17px;font-weight:800;color:var(--md);">225,000,000</p>
             </div>
-            <div class="rounded-xl p-3" style="background:#eff6ff;">
-              <p class="text-xs" style="color:var(--gray-500);">Eng yuqori</p>
-              <p class="text-lg font-bold" style="color:#1d4ed8;">11-A sinf</p>
+            <div style="background:#eff6ff;border-radius:12px;padding:12px;">
+              <p style="font-size:11px;color:var(--g5);">Jami chiqim (Okt)</p>
+              <p style="font-size:17px;font-weight:800;color:#1d4ed8;">142,500,000</p>
             </div>
-            <div class="rounded-xl p-3" style="background:#fff1f2;">
-              <p class="text-xs" style="color:var(--gray-500);">Sababsiz</p>
-              <p class="text-lg font-bold" style="color:#be123c;">28 ta kun</p>
-            </div>
-            <div class="rounded-xl p-3" style="background:#fffbeb;">
-              <p class="text-xs" style="color:var(--gray-500);">Sababli</p>
-              <p class="text-lg font-bold" style="color:#92400e;">64 ta kun</p>
+            <div style="background:var(--yl);border-radius:12px;padding:12px;">
+              <p style="font-size:11px;color:var(--g5);">Sof foyda</p>
+              <p style="font-size:17px;font-weight:800;color:#92400e;">82,500,000</p>
             </div>
           </div>
         </div>
 
-        <!-- E'lonlar paneli -->
-        <div class="card flex flex-col gap-3">
-          <div class="flex items-center justify-between mb-1">
-            <p class="font-bold text-base" style="color:var(--gray-800);">Maktab E'lonlari</p>
-            <button class="text-xs font-semibold" style="color:var(--mint-dark);" onclick="showToast('Barcha e\'lonlar ko\'rilmoqda…','info')">Hammasi →</button>
-          </div>
-
-          <div class="notice-card notice-success">
-            <i class="fa-solid fa-bullhorn mt-0.5" style="color:var(--mint-dark);font-size:14px;"></i>
-            <div>
-              <p class="text-xs font-bold" style="color:var(--mint-dark);">Olimpiada ro'yxatga olish</p>
-              <p class="text-xs mt-0.5" style="color:var(--gray-600);">20-noyabr. Matematika va fizika olympiadasi uchun ariza topshirish muddati uzaytirildi.</p>
-              <p class="text-xs mt-1 font-semibold" style="color:var(--mint);">25-noyabr, 23:59 gacha</p>
+        <!-- Davomat Bar chart -->
+        <div class="card">
+          <p style="font-size:15px;font-weight:700;color:var(--g8);margin-bottom:6px;">Haftalik Davomat</p>
+          <p style="font-size:11.5px;color:var(--g4);margin-bottom:16px;">O'quvchilar soni (450 ta)</p>
+          <div class="flex items-end gap-2.5" style="height:130px;">
+            <div class="flex flex-col items-center gap-1.5 flex-1">
+              <div style="width:32px;height:124px;background:var(--g1);border-radius:6px;position:relative;overflow:hidden;display:flex;align-items:flex-end;">
+                <div style="width:100%;height:95%;background:linear-gradient(to top,var(--md),var(--m));border-radius:6px;"></div>
+              </div>
+              <p style="font-size:10px;color:var(--g5);font-weight:600;">Du</p>
+              <p style="font-size:10px;color:var(--md);font-weight:700;">428</p>
             </div>
-          </div>
-
-          <div class="notice-card notice-warning">
-            <i class="fa-solid fa-triangle-exclamation mt-0.5" style="color:var(--yellow);font-size:14px;"></i>
-            <div>
-              <p class="text-xs font-bold" style="color:#92400e;">Dars qoldirish ogohlantirishi</p>
-              <p class="text-xs mt-0.5" style="color:var(--gray-600);">5-B sinfida 12 ta o'quvchi uch kundan ortiq dars qoldirgan.</p>
-              <p class="text-xs mt-1 font-semibold" style="color:var(--yellow);">Sinf rahbari — murojaat qiling</p>
+            <div class="flex flex-col items-center gap-1.5 flex-1">
+              <div style="width:32px;height:124px;background:var(--g1);border-radius:6px;position:relative;overflow:hidden;display:flex;align-items:flex-end;">
+                <div style="width:100%;height:97%;background:linear-gradient(to top,var(--md),var(--m));border-radius:6px;"></div>
+              </div>
+              <p style="font-size:10px;color:var(--g5);font-weight:600;">Se</p>
+              <p style="font-size:10px;color:var(--md);font-weight:700;">437</p>
             </div>
-          </div>
-
-          <div class="notice-card notice-info">
-            <i class="fa-solid fa-calendar-check mt-0.5" style="color:var(--blue);font-size:14px;"></i>
-            <div>
-              <p class="text-xs font-bold" style="color:#1e40af;">Chorak imtihonlar</p>
-              <p class="text-xs mt-0.5" style="color:var(--gray-600);">2-chorak yakuniy imtihonlari 28-noyabrdan boshlanadi. Jadval tasdiqlandi.</p>
-              <p class="text-xs mt-1 font-semibold" style="color:var(--blue);">28-noyabr — 5-dekabr</p>
+            <div class="flex flex-col items-center gap-1.5 flex-1">
+              <div style="width:32px;height:124px;background:var(--g1);border-radius:6px;position:relative;overflow:hidden;display:flex;align-items:flex-end;">
+                <div style="width:100%;height:90%;background:linear-gradient(to top,#2563eb,#3b82f6);border-radius:6px;"></div>
+              </div>
+              <p style="font-size:10px;color:var(--g5);font-weight:600;">Ch</p>
+              <p style="font-size:10px;color:#2563eb;font-weight:700;">405</p>
             </div>
-          </div>
-
-          <div class="notice-card notice-error">
-            <i class="fa-solid fa-money-bill-wave mt-0.5" style="color:var(--red);font-size:14px;"></i>
-            <div>
-              <p class="text-xs font-bold" style="color:#991b1b;">To'lov eslatmasi</p>
-              <p class="text-xs mt-0.5" style="color:var(--gray-600);">36 ta o'quvchi noyabr oylik to'lovini kechiktirgan. Ota-onalarga SMS yuborildi.</p>
-              <p class="text-xs mt-1 font-semibold" style="color:var(--red);">Muddati: 30-noyabr</p>
+            <div class="flex flex-col items-center gap-1.5 flex-1">
+              <div style="width:32px;height:124px;background:var(--g1);border-radius:6px;position:relative;overflow:hidden;display:flex;align-items:flex-end;">
+                <div style="width:100%;height:96%;background:linear-gradient(to top,var(--md),var(--m));border-radius:6px;"></div>
+              </div>
+              <p style="font-size:10px;color:var(--g5);font-weight:600;">Pa</p>
+              <p style="font-size:10px;color:var(--md);font-weight:700;">432</p>
+            </div>
+            <div class="flex flex-col items-center gap-1.5 flex-1">
+              <div style="width:32px;height:124px;background:var(--g1);border-radius:6px;position:relative;overflow:hidden;display:flex;align-items:flex-end;">
+                <div style="width:100%;height:85%;background:linear-gradient(to top,#d97706,#f59e0b);border-radius:6px;"></div>
+              </div>
+              <p style="font-size:10px;color:var(--g5);font-weight:600;">Ju</p>
+              <p style="font-size:10px;color:#92400e;font-weight:700;">383</p>
+            </div>
+            <div class="flex flex-col items-center gap-1.5 flex-1">
+              <div style="width:32px;height:124px;background:var(--g1);border-radius:6px;position:relative;overflow:hidden;display:flex;align-items:flex-end;">
+                <div style="width:100%;height:60%;background:linear-gradient(to top,#7c3aed,#a855f7);border-radius:6px;"></div>
+              </div>
+              <p style="font-size:10px;color:var(--g5);font-weight:600;">Sh</p>
+              <p style="font-size:10px;color:#7c3aed;font-weight:700;">270</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Faol sinflar bar chart -->
+      <!-- Top reyting qisqacha jadvali -->
       <div class="card">
-        <div class="flex items-center justify-between mb-5">
+        <div class="flex items-center justify-between mb-4">
           <div>
-            <p class="font-bold text-base" style="color:var(--gray-800);">Eng Faol Sinflar Reytingi</p>
-            <p class="text-xs mt-0.5" style="color:var(--gray-400);">O'rtacha ball, davomat va faollik bo'yicha</p>
+            <p style="font-size:15px;font-weight:700;color:var(--g8);">🏆 Zamaxshariy Iqtidorlari — Top Reyting</p>
+            <p style="font-size:12px;color:var(--g4);margin-top:2px;">Kunlik jami ball bo'yicha eng yuqori 5 ta o'quvchi</p>
           </div>
-          <div class="flex gap-2">
-            <button class="filter-btn active">Ball</button>
-            <button class="filter-btn">Davomat</button>
-            <button class="filter-btn">Faollik</button>
-          </div>
+          <button class="btn-out" onclick="switchTo('leaderboard')">To'liq Reyting →</button>
         </div>
-        <div class="flex items-end gap-3 overflow-x-auto pb-2" style="min-height:140px;">
-          <div class="bar-chart-col"><div style="height:120px;display:flex;align-items:flex-end;"><div class="bar-chart-bar" data-val="96.4" style="height:120px;background:linear-gradient(to top,#059669,#10b981);"></div></div><p class="text-xs font-semibold text-center mt-1.5" style="color:var(--gray-600);">11-A</p><p class="text-xs text-center" style="color:var(--mint-dark);">96.4</p></div>
-          <div class="bar-chart-col"><div style="height:120px;display:flex;align-items:flex-end;"><div class="bar-chart-bar" data-val="94.1" style="height:112px;background:linear-gradient(to top,#1d4ed8,#3b82f6);"></div></div><p class="text-xs font-semibold text-center mt-1.5" style="color:var(--gray-600);">9-B</p><p class="text-xs text-center" style="color:#1d4ed8;">94.1</p></div>
-          <div class="bar-chart-col"><div style="height:120px;display:flex;align-items:flex-end;"><div class="bar-chart-bar" data-val="93.8" style="height:108px;background:linear-gradient(to top,#059669,#10b981);"></div></div><p class="text-xs font-semibold text-center mt-1.5" style="color:var(--gray-600);">10-A</p><p class="text-xs text-center" style="color:var(--mint-dark);">93.8</p></div>
-          <div class="bar-chart-col"><div style="height:120px;display:flex;align-items:flex-end;"><div class="bar-chart-bar" data-val="92.5" style="height:102px;background:linear-gradient(to top,#6d28d9,#8b5cf6);"></div></div><p class="text-xs font-semibond text-center mt-1.5" style="color:var(--gray-600);">7-A</p><p class="text-xs text-center" style="color:#6d28d9;">92.5</p></div>
-          <div class="bar-chart-col"><div style="height:120px;display:flex;align-items:flex-end;"><div class="bar-chart-bar" data-val="91.9" style="height:96px;background:linear-gradient(to top,#1d4ed8,#3b82f6);"></div></div><p class="text-xs font-semibold text-center mt-1.5" style="color:var(--gray-600);">8-B</p><p class="text-xs text-center" style="color:#1d4ed8;">91.9</p></div>
-          <div class="bar-chart-col"><div style="height:120px;display:flex;align-items:flex-end;"><div class="bar-chart-bar" data-val="90.2" style="height:88px;background:linear-gradient(to top,#92400e,#f59e0b);"></div></div><p class="text-xs font-semibold text-center mt-1.5" style="color:var(--gray-600);">11-B</p><p class="text-xs text-center" style="color:#92400e;">90.2</p></div>
-          <div class="bar-chart-col"><div style="height:120px;display:flex;align-items:flex-end;"><div class="bar-chart-bar" data-val="89.7" style="height:82px;background:linear-gradient(to top,#059669,#10b981);"></div></div><p class="text-xs font-semibold text-center mt-1.5" style="color:var(--gray-600);">6-A</p><p class="text-xs text-center" style="color:var(--mint-dark);">89.7</p></div>
-          <div class="bar-chart-col"><div style="height:120px;display:flex;align-items:flex-end;"><div class="bar-chart-bar" data-val="88.3" style="height:76px;background:linear-gradient(to top,#6d28d9,#8b5cf6);"></div></div><p class="text-xs font-semibold text-center mt-1.5" style="color:var(--gray-600);">5-A</p><p class="text-xs text-center" style="color:#6d28d9;">88.3</p></div>
-          <div class="bar-chart-col"><div style="height:120px;display:flex;align-items:flex-end;"><div class="bar-chart-bar" data-val="86.5" style="height:68px;background:linear-gradient(to top,#92400e,#f59e0b);"></div></div><p class="text-xs font-semibold text-center mt-1.5" style="color:var(--gray-600);">4-B</p><p class="text-xs text-center" style="color:#92400e;">86.5</p></div>
-          <div class="bar-chart-col"><div style="height:120px;display:flex;align-items:flex-end;"><div class="bar-chart-bar" data-val="84.1" style="height:58px;background:linear-gradient(to top,#1d4ed8,#3b82f6);"></div></div><p class="text-xs font-semibold text-center mt-1.5" style="color:var(--gray-600);">3-A</p><p class="text-xs text-center" style="color:#1d4ed8;">84.1</p></div>
-          <div class="bar-chart-col"><div style="height:120px;display:flex;align-items:flex-end;"><div class="bar-chart-bar" data-val="82.8" style="height:50px;background:linear-gradient(to top,#059669,#10b981);"></div></div><p class="text-xs font-semibold text-center mt-1.5" style="color:var(--gray-600);">2-A</p><p class="text-xs text-center" style="color:var(--mint-dark);">82.8</p></div>
-          <div class="bar-chart-col"><div style="height:120px;display:flex;align-items:flex-end;"><div class="bar-chart-bar" data-val="80.3" style="height:42px;background:linear-gradient(to top,#92400e,#f59e0b);"></div></div><p class="text-xs font-semibold text-center mt-1.5" style="color:var(--gray-600);">1-A</p><p class="text-xs text-center" style="color:#92400e;">80.3</p></div>
+        <div class="flex flex-col gap-2" id="dashTopList">
+          <!-- JavaScript to'ldiradi -->
         </div>
       </div>
     </section>
 
-    <!-- ====================================================
-         B. O'QUVCHILAR SAHIFASI
-         ==================================================== -->
-    <section id="section-students" class="content-section">
+    <!-- ==================================================
+      B. O'QUVCHILAR BAZASI
+    ================================================== -->
+    <section id="sec-students" class="content-section">
 
-      <!-- Sarlavha -->
       <div class="flex items-center justify-between mb-6">
         <div>
-          <h1 class="section-title">O'quvchilar Ro'yxati</h1>
-          <p class="section-sub">Jami 450 ta o'quvchi • 18 ta sinf</p>
+          <h1 style="font-size:22px;font-weight:900;color:var(--g8);">O'quvchilar Bazasi</h1>
+          <p style="font-size:13.5px;color:var(--g5);margin-top:2px;">Jami <span id="stuCount" style="color:var(--md);font-weight:700;">15</span> ta o'quvchi</p>
         </div>
         <div class="flex gap-2">
-          <button class="btn-outline" onclick="showToast('Excel fayl yuklanmoqda…','info')"><i class="fa-solid fa-file-excel mr-1.5"></i>Eksport</button>
-          <button class="btn-primary" onclick="document.getElementById('addStudentModal').classList.add('open')"><i class="fa-solid fa-user-plus mr-1.5"></i>O'quvchi Qo'shish</button>
+          <button class="btn-out" onclick="toast('Excel yuklanmoqda…','g')"><i class="fa-solid fa-file-excel mr-1.5"></i>Eksport</button>
+          <button class="btn-pr" onclick="toast('Yangi o\'quvchi formasi ochildi','g')"><i class="fa-solid fa-user-plus mr-1.5"></i>O'quvchi Qo'shish</button>
         </div>
       </div>
 
-      <!-- Statistika qatori -->
-      <div class="grid grid-cols-4 gap-4 mb-6">
-        <div class="rounded-xl p-4" style="background:var(--mint-xlight);border:1px solid var(--mint-light);">
-          <p class="text-xs font-semibold" style="color:var(--mint-dark);">JAMI O'QUVCHILAR</p>
-          <p class="text-2xl font-black mt-1" style="color:var(--gray-800);">450</p>
-        </div>
-        <div class="rounded-xl p-4" style="background:#eff6ff;border:1px solid #bfdbfe;">
-          <p class="text-xs font-semibold" style="color:#1d4ed8;">TO'LAGAN</p>
-          <p class="text-2xl font-black mt-1" style="color:var(--gray-800);">414</p>
-        </div>
-        <div class="rounded-xl p-4" style="background:#fff1f2;border:1px solid #fecdd3;">
-          <p class="text-xs font-semibold" style="color:#be123c;">QARZDOR</p>
-          <p class="text-2xl font-black mt-1" style="color:var(--gray-800);">36</p>
-        </div>
-        <div class="rounded-xl p-4" style="background:#fffbeb;border:1px solid #fde68a;">
-          <p class="text-xs font-semibold" style="color:#92400e;">O'RT. REYTING</p>
-          <p class="text-2xl font-black mt-1" style="color:var(--gray-800);">87.4</p>
-        </div>
+      <!-- Sinflar bo'yicha filtr -->
+      <div class="flex items-center gap-2 mb-5" id="stuFilter">
+        <button class="btn-sm btn-confirm" style="background:var(--m);color:white;" data-f="all">Barchasi</button>
+        <button class="btn-sm" style="background:var(--g1);color:var(--g7);" data-f="5">5-sinf</button>
+        <button class="btn-sm" style="background:var(--g1);color:var(--g7);" data-f="6">6-sinf</button>
+        <button class="btn-sm" style="background:var(--g1);color:var(--g7);" data-f="7">7-sinf</button>
+        <button class="btn-sm" style="background:var(--g1);color:var(--g7);" data-f="8">8-sinf</button>
       </div>
 
-      <!-- Filtrlar -->
-      <div class="flex items-center gap-3 mb-5">
-        <span class="text-xs font-semibold" style="color:var(--gray-500);">Sinf bo'yicha filtr:</span>
-        <div class="flex gap-2 flex-wrap" id="classFilter">
-          <button class="filter-btn active" data-filter="all">Barchasi</button>
-          <button class="filter-btn" data-filter="1">1-sinf</button>
-          <button class="filter-btn" data-filter="2">2-sinf</button>
-          <button class="filter-btn" data-filter="3">3-sinf</button>
-          <button class="filter-btn" data-filter="4">4-sinf</button>
-          <button class="filter-btn" data-filter="5">5-sinf</button>
-          <button class="filter-btn" data-filter="6">6-sinf</button>
-          <button class="filter-btn" data-filter="7">7-sinf</button>
-          <button class="filter-btn" data-filter="8">8-sinf</button>
-          <button class="filter-btn" data-filter="9">9-sinf</button>
-          <button class="filter-btn" data-filter="10">10-sinf</button>
-          <button class="filter-btn" data-filter="11">11-sinf</button>
-        </div>
-      </div>
-
-      <!-- O'quvchilar jadvali -->
+      <!-- Jadval -->
       <div class="card" style="padding:0;overflow:hidden;">
-        <table class="data-table" id="studentsTable">
+        <table class="dtbl" id="stuTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>O'quvchi F.I.O</th>
+              <th>Sinf</th>
+              <th>Ota-onasi</th>
+              <th>Telefon</th>
+              <th>Oylik To'lov</th>
+              <th>To'lov Statusi</th>
+              <th>Tasdiqlash</th>
+            </tr>
+          </thead>
+          <tbody id="stuTbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ==================================================
+      C. 30 BALLIK BAHOLASH JURNALI
+    ================================================== -->
+    <section id="sec-journal" class="content-section">
+
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h1 style="font-size:22px;font-weight:900;color:var(--g8);">Baholash Jurnali</h1>
+          <p style="font-size:13.5px;color:var(--g5);margin-top:2px;">30 ballik baholash tizimi • Deadline: har oyning <span id="deadlineDisp" style="color:var(--md);font-weight:700;">5</span>-sanasigacha</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <!-- Deadline indikator -->
+          <div id="deadlineAlert" style="padding:8px 16px;border-radius:10px;font-size:12.5px;font-weight:700;display:none;"></div>
+          <button class="btn-pr" onclick="saveJournal()">
+            <i class="fa-solid fa-floppy-disk mr-1.5"></i>Jurnalni Saqlash
+          </button>
+        </div>
+      </div>
+
+      <!-- Izoh kartasi -->
+      <div class="card mb-5" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#bfdbfe;">
+        <div class="flex items-start gap-3">
+          <i class="fa-solid fa-circle-info mt-0.5" style="color:#3b82f6;font-size:15px;"></i>
+          <div>
+            <p style="font-size:13.5px;font-weight:700;color:#1e40af;">30 Ballik Tizim Qoidalari</p>
+            <div class="flex gap-6 mt-1" style="font-size:12.5px;color:#1d4ed8;">
+              <span><i class="fa-solid fa-heart mr-1"></i><strong>Xulq:</strong> maks. 10 ball</span>
+              <span><i class="fa-solid fa-house mr-1"></i><strong>Uy vazifasi:</strong> maks. 10 ball</span>
+              <span><i class="fa-solid fa-hand mr-1"></i><strong>Darsdagi ishtirok:</strong> maks. 10 ball</span>
+              <span><i class="fa-solid fa-lock mr-1" style="color:var(--r);"></i><strong style="color:#b91c1c;">🔒 = Qarzdor + Deadline o'tgan</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sinflar bo'yicha filtr -->
+      <div class="flex items-center gap-2 mb-4" id="jrnFilter">
+        <button class="btn-sm" style="background:var(--m);color:white;" data-jf="all">Barchasi</button>
+        <button class="btn-sm" style="background:var(--g1);color:var(--g7);" data-jf="5">5-sinf</button>
+        <button class="btn-sm" style="background:var(--g1);color:var(--g7);" data-jf="6">6-sinf</button>
+        <button class="btn-sm" style="background:var(--g1);color:var(--g7);" data-jf="7">7-sinf</button>
+        <button class="btn-sm" style="background:var(--g1);color:var(--g7);" data-jf="8">8-sinf</button>
+      </div>
+
+      <div class="card" style="padding:0;overflow:hidden;">
+        <table class="dtbl" id="jrnTable">
           <thead>
             <tr>
               <th>O'quvchi</th>
               <th>Sinf</th>
-              <th>Ota-onasi</th>
-              <th>Telefon</th>
-              <th>Reyting</th>
-              <th>Davomat</th>
-              <th>To'lov Statusi</th>
-              <th>Amal</th>
+              <th>To'lov</th>
+              <th style="text-align:center;">Xulq (0–10)</th>
+              <th style="text-align:center;">Uy vazifasi (0–10)</th>
+              <th style="text-align:center;">Ishtirok (0–10)</th>
+              <th style="text-align:center;">Kunlik Jami</th>
+              <th style="text-align:center;">Holat</th>
             </tr>
           </thead>
-          <tbody id="studentsTbody">
-            <!-- JavaScript orqali to'ldiriladi -->
-          </tbody>
+          <tbody id="jrnTbody"></tbody>
         </table>
-      </div>
-
-      <!-- Pagination -->
-      <div class="flex items-center justify-between mt-4">
-        <p class="text-xs" style="color:var(--gray-500);">Jami 450 ta o'quvchidan 1–25 ko'rsatilmoqda</p>
-        <div class="flex gap-1">
-          <button class="btn-icon" style="font-size:12px;">‹</button>
-          <button class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white" style="background:var(--mint);">1</button>
-          <button class="btn-icon" style="font-size:12px;">2</button>
-          <button class="btn-icon" style="font-size:12px;">3</button>
-          <button class="btn-icon" style="font-size:12px;">…</button>
-          <button class="btn-icon" style="font-size:12px;">18</button>
-          <button class="btn-icon" style="font-size:12px;">›</button>
-        </div>
       </div>
     </section>
 
-    <!-- ====================================================
-         C. O'QITUVCHILAR SAHIFASI
-         ==================================================== -->
-    <section id="section-teachers" class="content-section">
+    <!-- ==================================================
+      D. REYTING (LEADERBOARD)
+    ================================================== -->
+    <section id="sec-leaderboard" class="content-section">
 
       <div class="flex items-center justify-between mb-6">
         <div>
-          <h1 class="section-title">O'qituvchilar</h1>
-          <p class="section-sub">35 ta o'qituvchi • 32 ta faol</p>
+          <h1 style="font-size:22px;font-weight:900;color:var(--g8);">🏆 Reyting — Leaderboard</h1>
+          <p style="font-size:13.5px;color:var(--g5);margin-top:2px;">O'quvchilar to'plagan ball bo'yicha dinamik saralash</p>
         </div>
-        <div class="flex gap-2">
-          <button class="btn-outline" onclick="showToast('Hisobot tayyorlanmoqda…','info')"><i class="fa-solid fa-chart-bar mr-1.5"></i>Hisobot</button>
-          <button class="btn-primary" onclick="showToast('O\'qituvchi qo\'shish formasi ochildi','success')"><i class="fa-solid fa-plus mr-1.5"></i>O'qituvchi Qo'shish</button>
-        </div>
-      </div>
-
-      <!-- Statistika -->
-      <div class="grid grid-cols-4 gap-4 mb-6">
-        <div class="rounded-xl p-4" style="background:var(--mint-xlight);border:1px solid var(--mint-light);">
-          <p class="text-xs font-semibold" style="color:var(--mint-dark);">JAMI O'QITUVCHI</p>
-          <p class="text-2xl font-black mt-1">35</p>
-        </div>
-        <div class="rounded-xl p-4" style="background:#eff6ff;border:1px solid #bfdbfe;">
-          <p class="text-xs font-semibold" style="color:#1d4ed8;">FAOL</p>
-          <p class="text-2xl font-black mt-1">32</p>
-        </div>
-        <div class="rounded-xl p-4" style="background:#fffbeb;border:1px solid #fde68a;">
-          <p class="text-xs font-semibold" style="color:#92400e;">TA'TILDA</p>
-          <p class="text-2xl font-black mt-1">3</p>
-        </div>
-        <div class="rounded-xl p-4" style="background:#fdf4ff;border:1px solid #e9d5ff;">
-          <p class="text-xs font-semibold" style="color:#6d28d9;">OLIY TOIFALI</p>
-          <p class="text-2xl font-black mt-1">18</p>
+        <div class="flex gap-2" id="lbPeriod">
+          <button class="btn-pr" data-period="daily">Kunlik</button>
+          <button class="btn-out" data-period="weekly">Haftalik</button>
+          <button class="btn-out" data-period="monthly">Oylik</button>
         </div>
       </div>
 
-      <!-- O'qituvchilar jadvali -->
+      <!-- Top 3 podium -->
+      <div class="grid grid-cols-3 gap-5 mb-7" id="podium">
+        <!-- JavaScript to'ldiradi -->
+      </div>
+
+      <!-- To'liq jadval -->
       <div class="card" style="padding:0;overflow:hidden;">
-        <table class="data-table">
+        <div class="flex items-center justify-between px-5 py-4" style="border-bottom:1px solid var(--g1);">
+          <p style="font-size:15px;font-weight:700;color:var(--g8);">To'liq Reyting Jadvali</p>
+          <span id="lbPeriodLabel" class="bdg bdg-g">Kunlik</span>
+        </div>
+        <table class="dtbl" id="lbTable">
           <thead>
             <tr>
-              <th>O'qituvchi</th>
-              <th>Mutaxassislik</th>
-              <th>Toifa</th>
-              <th>Dars beradigan sinflar</th>
-              <th>Haftalik soat</th>
-              <th>Tajriba</th>
-              <th>Maosh</th>
-              <th>Status</th>
+              <th style="width:60px;">O'rin</th>
+              <th>O'quvchi</th>
+              <th>Sinf</th>
+              <th style="text-align:center;">Xulq</th>
+              <th style="text-align:center;">Uy vazifasi</th>
+              <th style="text-align:center;">Ishtirok</th>
+              <th style="text-align:center;">Jami Ball</th>
+              <th style="text-align:center;">Daraja</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td><div class="flex items-center gap-2.5"><div class="avatar" style="background:linear-gradient(135deg,#10b981,#059669);">MA</div><div><p class="font-semibold text-sm" style="color:var(--gray-800);">Muhammadali Aliyev</p><p class="text-xs" style="color:var(--gray-400);">m.aliyev@zamaxshariy.uz</p></div></div></td>
-              <td><span class="badge badge-blue"><i class="fa-solid fa-calculator mr-1"></i>Matematika</span></td>
-              <td><span class="badge badge-purple">Oliy</span></td>
-              <td class="text-xs" style="color:var(--gray-600);">7-A, 8-A, 9-B, 10-A, 11-A</td>
-              <td><span class="font-bold" style="color:var(--gray-800);">28</span><span class="text-xs ml-1" style="color:var(--gray-400);">soat</span></td>
-              <td class="text-xs" style="color:var(--gray-600);">14 yil</td>
-              <td class="text-xs font-semibold" style="color:var(--mint-dark);">4,200,000 so'm</td>
-              <td><span class="badge badge-green"><i class="fa-solid fa-circle text-xs"></i>Faol</span></td>
-            </tr>
-            <tr>
-              <td><div class="flex items-center gap-2.5"><div class="avatar" style="background:linear-gradient(135deg,#059669,#047857);">ZR</div><div><p class="font-semibold text-sm" style="color:var(--gray-800);">Zulfiya Rahimova</p><p class="text-xs" style="color:var(--gray-400);">z.rahimova@zamaxshariy.uz</p></div></div></td>
-              <td><span class="badge badge-green"><i class="fa-solid fa-book-open-reader mr-1"></i>Arab tili</span></td>
-              <td><span class="badge badge-purple">Oliy</span></td>
-              <td class="text-xs" style="color:var(--gray-600);">1-A, 2-A, 3-A, 4-A, 5-A, 6-A</td>
-              <td><span class="font-bold" style="color:var(--gray-800);">32</span><span class="text-xs ml-1" style="color:var(--gray-400);">soat</span></td>
-              <td class="text-xs" style="color:var(--gray-600);">9 yil</td>
-              <td class="text-xs font-semibold" style="color:var(--mint-dark);">3,800,000 so'm</td>
-              <td><span class="badge badge-green"><i class="fa-solid fa-circle text-xs"></i>Faol</span></td>
-            </tr>
-            <tr>
-              <td><div class="flex items-center gap-2.5"><div class="avatar" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">BT</div><div><p class="font-semibold text-sm" style="color:var(--gray-800);">Bobur Toshmatov</p><p class="text-xs" style="color:var(--gray-400);">b.toshmatov@zamaxshariy.uz</p></div></div></td>
-              <td><span class="badge badge-purple"><i class="fa-solid fa-laptop-code mr-1"></i>Informatika</span></td>
-              <td><span class="badge badge-blue">1-toifa</span></td>
-              <td class="text-xs" style="color:var(--gray-600);">5-A, 6-A, 7-A, 8-A, 9-A, 10-A, 11-A</td>
-              <td><span class="font-bold" style="color:var(--gray-800);">24</span><span class="text-xs ml-1" style="color:var(--gray-400);">soat</span></td>
-              <td class="text-xs" style="color:var(--gray-600);">7 yil</td>
-              <td class="text-xs font-semibold" style="color:var(--mint-dark);">3,500,000 so'm</td>
-              <td><span class="badge badge-green"><i class="fa-solid fa-circle text-xs"></i>Faol</span></td>
-            </tr>
-            <tr>
-              <td><div class="flex items-center gap-2.5"><div class="avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706);">SK</div><div><p class="font-semibold text-sm" style="color:var(--gray-800);">Sarvinoz Karimova</p><p class="text-xs" style="color:var(--gray-400);">s.karimova@zamaxshariy.uz</p></div></div></td>
-              <td><span class="badge badge-yellow"><i class="fa-solid fa-language mr-1"></i>O'zbek tili</span></td>
-              <td><span class="badge badge-purple">Oliy</span></td>
-              <td class="text-xs" style="color:var(--gray-600);">1-A, 2-A, 3-A, 4-A, 5-A, 6-A, 7-A</td>
-              <td><span class="font-bold" style="color:var(--gray-800);">30</span><span class="text-xs ml-1" style="color:var(--gray-400);">soat</span></td>
-              <td class="text-xs" style="color:var(--gray-600);">11 yil</td>
-              <td class="text-xs font-semibold" style="color:var(--mint-dark);">4,000,000 so'm</td>
-              <td><span class="badge badge-green"><i class="fa-solid fa-circle text-xs"></i>Faol</span></td>
-            </tr>
-            <tr>
-              <td><div class="flex items-center gap-2.5"><div class="avatar" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9);">HU</div><div><p class="font-semibold text-sm" style="color:var(--gray-800);">Hamid Umarov</p><p class="text-xs" style="color:var(--gray-400);">h.umarov@zamaxshariy.uz</p></div></div></td>
-              <td><span class="badge badge-blue"><i class="fa-solid fa-atom mr-1"></i>Fizika</span></td>
-              <td><span class="badge badge-blue">1-toifa</span></td>
-              <td class="text-xs" style="color:var(--gray-600);">8-A, 9-A, 9-B, 10-A, 11-A, 11-B</td>
-              <td><span class="font-bold" style="color:var(--gray-800);">26</span><span class="text-xs ml-1" style="color:var(--gray-400);">soat</span></td>
-              <td class="text-xs" style="color:var(--gray-600);">8 yil</td>
-              <td class="text-xs font-semibold" style="color:var(--mint-dark);">3,600,000 so'm</td>
-              <td><span class="badge badge-yellow"><i class="fa-solid fa-circle text-xs"></i>Kasallik ta'tilida</span></td>
-            </tr>
-            <tr>
-              <td><div class="flex items-center gap-2.5"><div class="avatar" style="background:linear-gradient(135deg,#ef4444,#b91c1c);">NY</div><div><p class="font-semibold text-sm" style="color:var(--gray-800);">Nodira Yusupova</p><p class="text-xs" style="color:var(--gray-400);">n.yusupova@zamaxshariy.uz</p></div></div></td>
-              <td><span class="badge badge-green"><i class="fa-solid fa-leaf mr-1"></i>Biologiya</span></td>
-              <td><span class="badge badge-gray">2-toifa</span></td>
-              <td class="text-xs" style="color:var(--gray-600);">7-A, 8-A, 9-A, 10-A, 11-A</td>
-              <td><span class="font-bold" style="color:var(--gray-800);">22</span><span class="text-xs ml-1" style="color:var(--gray-400);">soat</span></td>
-              <td class="text-xs" style="color:var(--gray-600);">5 yil</td>
-              <td class="text-xs font-semibold" style="color:var(--mint-dark);">3,200,000 so'm</td>
-              <td><span class="badge badge-green"><i class="fa-solid fa-circle text-xs"></i>Faol</span></td>
-            </tr>
-            <tr>
-              <td><div class="flex items-center gap-2.5"><div class="avatar" style="background:linear-gradient(135deg,#0ea5e9,#0284c7);">AQ</div><div><p class="font-semibold text-sm" style="color:var(--gray-800);">Aziz Qodirov</p><p class="text-xs" style="color:var(--gray-400);">a.qodirov@zamaxshariy.uz</p></div></div></td>
-              <td><span class="badge badge-blue"><i class="fa-solid fa-globe mr-1"></i>Ingliz tili</span></td>
-              <td><span class="badge badge-purple">Oliy</span></td>
-              <td class="text-xs" style="color:var(--gray-600);">3-A, 4-A, 5-A, 6-A, 7-A, 8-A</td>
-              <td><span class="font-bold" style="color:var(--gray-800);">30</span><span class="text-xs ml-1" style="color:var(--gray-400);">soat</span></td>
-              <td class="text-xs" style="color:var(--gray-600);">10 yil</td>
-              <td class="text-xs font-semibold" style="color:var(--mint-dark);">4,000,000 so'm</td>
-              <td><span class="badge badge-red"><i class="fa-solid fa-circle text-xs"></i>Kasallik ta'tilida</span></td>
-            </tr>
-            <tr>
-              <td><div class="flex items-center gap-2.5"><div class="avatar" style="background:linear-gradient(135deg,#10b981,#059669);">MN</div><div><p class="font-semibold text-sm" style="color:var(--gray-800);">Malika Norova</p><p class="text-xs" style="color:var(--gray-400);">m.norova@zamaxshariy.uz</p></div></div></td>
-              <td><span class="badge badge-yellow"><i class="fa-solid fa-book mr-1"></i>Tarix</span></td>
-              <td><span class="badge badge-blue">1-toifa</span></td>
-              <td class="text-xs" style="color:var(--gray-600);">5-A, 6-A, 7-A, 8-A, 9-A</td>
-              <td><span class="font-bold" style="color:var(--gray-800);">20</span><span class="text-xs ml-1" style="color:var(--gray-400);">soat</span></td>
-              <td class="text-xs" style="color:var(--gray-600);">6 yil</td>
-              <td class="text-xs font-semibold" style="color:var(--mint-dark);">3,400,000 so'm</td>
-              <td><span class="badge badge-yellow"><i class="fa-solid fa-circle text-xs"></i>Dekret ta'tilida</span></td>
-            </tr>
-          </tbody>
+          <tbody id="lbTbody"></tbody>
         </table>
       </div>
     </section>
 
-    <!-- ====================================================
-         D. DARS JADVALI SAHIFASI
-         ==================================================== -->
-    <section id="section-timetable" class="content-section">
+    <!-- ==================================================
+      E. DARS JADVALI
+    ================================================== -->
+    <section id="sec-timetable" class="content-section">
 
       <div class="flex items-center justify-between mb-6">
         <div>
-          <h1 class="section-title">Haftalik Dars Jadvali</h1>
-          <p class="section-sub">2024-yil, 2-chorak • Dushanba–Shanba</p>
+          <h1 style="font-size:22px;font-weight:900;color:var(--g8);">Dars Jadvali</h1>
+          <p style="font-size:13.5px;color:var(--g5);margin-top:2px;">5, 6, 7, 8-sinflar haftalik dars seti</p>
         </div>
         <div class="flex items-center gap-2">
-          <div class="flex gap-2 mr-2">
-            <span class="text-xs px-2 py-1 rounded-lg font-semibold" style="background:var(--mint-xlight);color:var(--mint-dark);">
-              <i class="fa-solid fa-filter mr-1"></i>Sinf:
-            </span>
-            <select class="text-xs px-3 py-1.5 rounded-lg outline-none font-semibold" style="background:var(--gray-100);color:var(--gray-700);border:1.5px solid var(--gray-200);" onchange="showToast('Sinf jadvali yangilandi','success')">
-              <option>7-A sinf</option>
-              <option>8-A sinf</option>
-              <option>9-B sinf</option>
-              <option>10-A sinf</option>
-              <option>11-A sinf</option>
-            </select>
-          </div>
-          <button class="btn-outline"><i class="fa-solid fa-print mr-1.5"></i>Chop Etish</button>
-          <button class="btn-primary"><i class="fa-solid fa-plus mr-1.5"></i>Jadval Tahrirlash</button>
+          <label style="font-size:12.5px;font-weight:600;color:var(--g6);">Sinf:</label>
+          <select id="ttSinf" class="score-inp" style="width:100px;" onchange="renderTimetable()">
+            <option value="5">5-sinf</option>
+            <option value="6">6-sinf</option>
+            <option value="7">7-sinf</option>
+            <option value="8">8-sinf</option>
+          </select>
+          <button class="btn-pr" onclick="toast('Dars jadvali chop etilmoqda…','g')"><i class="fa-solid fa-print mr-1.5"></i>Chop Etish</button>
         </div>
       </div>
 
       <!-- Afsonalar -->
       <div class="flex flex-wrap gap-3 mb-5">
-        <div class="flex items-center gap-1.5"><div style="width:10px;height:10px;border-radius:3px;background:#3b82f6;"></div><span class="text-xs" style="color:var(--gray-500);">Matematika</span></div>
-        <div class="flex items-center gap-1.5"><div style="width:10px;height:10px;border-radius:3px;background:#10b981;"></div><span class="text-xs" style="color:var(--gray-500);">Arab tili</span></div>
-        <div class="flex items-center gap-1.5"><div style="width:10px;height:10px;border-radius:3px;background:#a855f7;"></div><span class="text-xs" style="color:var(--gray-500);">Informatika</span></div>
-        <div class="flex items-center gap-1.5"><div style="width:10px;height:10px;border-radius:3px;background:#f59e0b;"></div><span class="text-xs" style="color:var(--gray-500);">O'zbek tili</span></div>
-        <div class="flex items-center gap-1.5"><div style="width:10px;height:10px;border-radius:3px;background:#f43f5e;"></div><span class="text-xs" style="color:var(--gray-500);">Tarix</span></div>
-        <div class="flex items-center gap-1.5"><div style="width:10px;height:10px;border-radius:3px;background:#0ea5e9;"></div><span class="text-xs" style="color:var(--gray-500);">Fizika</span></div>
-        <div class="flex items-center gap-1.5"><div style="width:10px;height:10px;border-radius:3px;background:#22c55e;"></div><span class="text-xs" style="color:var(--gray-500);">Biologiya</span></div>
-        <div class="flex items-center gap-1.5"><div style="width:10px;height:10px;border-radius:3px;background:#8b5cf6;"></div><span class="text-xs" style="color:var(--gray-500);">Ingliz tili</span></div>
+        <div class="flex items-center gap-1.5"><div style="width:10px;height:10px;border-radius:3px;background:#3b82f6;"></div><span style="font-size:11.5px;color:var(--g5);">Matematika</span></div>
+        <div class="flex items-center gap-1.5"><div style="width:10px;height:10px;border-radius:3px;background:#10b981;"></div><span style="font-size:11.5px;color:var(--g5);">Sun'iy Intellekt</span></div>
+        <div class="flex items-center gap-1.5"><div style="width:10px;height:10px;border-radius:3px;background:#f97316;"></div><span style="font-size:11.5px;color:var(--g5);">Arab tili</span></div>
+        <div class="flex items-center gap-1.5"><div style="width:10px;height:10px;border-radius:3px;background:#a855f7;"></div><span style="font-size:11.5px;color:var(--g5);">Informatika / IT</span></div>
+        <div class="flex items-center gap-1.5"><div style="width:10px;height:10px;border-radius:3px;background:#f59e0b;"></div><span style="font-size:11.5px;color:var(--g5);">Notiqlik San'ati</span></div>
+        <div class="flex items-center gap-1.5"><div style="width:10px;height:10px;border-radius:3px;background:#f43f5e;"></div><span style="font-size:11.5px;color:var(--g5);">Zakovat / Mantiq</span></div>
+        <div class="flex items-center gap-1.5"><div style="width:10px;height:10px;border-radius:3px;background:#0ea5e9;"></div><span style="font-size:11.5px;color:var(--g5);">Jismoniy Tarbiya</span></div>
       </div>
 
-      <!-- Jadval grid -->
-      <div class="card" style="overflow-x:auto;">
-        <div class="timetable-grid" style="min-width:700px;">
-          <!-- Sarlavhalar -->
-          <div style="background:var(--gray-100);border-radius:10px;display:flex;align-items:center;justify-content:center;padding:10px;font-size:11px;font-weight:700;color:var(--gray-500);">Vaqt</div>
-          <div class="timetable-header">Dushanba</div>
-          <div class="timetable-header">Seshanba</div>
-          <div class="timetable-header">Chorshanba</div>
-          <div class="timetable-header">Payshanba</div>
-          <div class="timetable-header">Juma</div>
-          <div class="timetable-header">Shanba</div>
-
-          <!-- 1-dars: 08:00–08:45 -->
-          <div class="timetable-time">08:00<br><span style="color:var(--gray-400);font-size:10px;">08:45</span></div>
-          <div class="lesson-block lesson-math"><p class="text-xs font-bold" style="color:#1d4ed8;">Matematika</p><p class="text-xs" style="color:#3b82f6;">M. Aliyev</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 201</p></div>
-          <div class="lesson-block lesson-arabic"><p class="text-xs font-bold" style="color:var(--mint-dark);">Arab tili</p><p class="text-xs" style="color:var(--mint);">Z. Rahimova</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 105</p></div>
-          <div class="lesson-block lesson-it"><p class="text-xs font-bold" style="color:#7c3aed;">Informatika</p><p class="text-xs" style="color:#a855f7;">B. Toshmatov</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 302</p></div>
-          <div class="lesson-block lesson-uz"><p class="text-xs font-bold" style="color:#92400e;">O'zbek tili</p><p class="text-xs" style="color:#f59e0b;">S. Karimova</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 108</p></div>
-          <div class="lesson-block lesson-phys"><p class="text-xs font-bold" style="color:#0369a1;">Fizika</p><p class="text-xs" style="color:#0ea5e9;">H. Umarov</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 210</p></div>
-          <div class="lesson-block lesson-english"><p class="text-xs font-bold" style="color:#6d28d9;">Ingliz tili</p><p class="text-xs" style="color:#8b5cf6;">A. Qodirov</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 106</p></div>
-
-          <!-- 2-dars: 09:00–09:45 -->
-          <div class="timetable-time">09:00<br><span style="color:var(--gray-400);font-size:10px;">09:45</span></div>
-          <div class="lesson-block lesson-arabic"><p class="text-xs font-bold" style="color:var(--mint-dark);">Arab tili</p><p class="text-xs" style="color:var(--mint);">Z. Rahimova</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 105</p></div>
-          <div class="lesson-block lesson-math"><p class="text-xs font-bold" style="color:#1d4ed8;">Matematika</p><p class="text-xs" style="color:#3b82f6;">M. Aliyev</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 201</p></div>
-          <div class="lesson-block lesson-uz"><p class="text-xs font-bold" style="color:#92400e;">O'zbek tili</p><p class="text-xs" style="color:#f59e0b;">S. Karimova</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 108</p></div>
-          <div class="lesson-block lesson-english"><p class="text-xs font-bold" style="color:#6d28d9;">Ingliz tili</p><p class="text-xs" style="color:#8b5cf6;">A. Qodirov</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 106</p></div>
-          <div class="lesson-block lesson-math"><p class="text-xs font-bold" style="color:#1d4ed8;">Matematika</p><p class="text-xs" style="color:#3b82f6;">M. Aliyev</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 201</p></div>
-          <div class="lesson-block lesson-bio"><p class="text-xs font-bold" style="color:#15803d;">Biologiya</p><p class="text-xs" style="color:#22c55e;">N. Yusupova</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 307</p></div>
-
-          <!-- 3-dars: 10:00–10:45 -->
-          <div class="timetable-time">10:00<br><span style="color:var(--gray-400);font-size:10px;">10:45</span></div>
-          <div class="lesson-block lesson-phys"><p class="text-xs font-bold" style="color:#0369a1;">Fizika</p><p class="text-xs" style="color:#0ea5e9;">H. Umarov</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 210</p></div>
-          <div class="lesson-block lesson-it"><p class="text-xs font-bold" style="color:#7c3aed;">Informatika</p><p class="text-xs" style="color:#a855f7;">B. Toshmatov</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 302</p></div>
-          <div class="lesson-block lesson-arabic"><p class="text-xs font-bold" style="color:var(--mint-dark);">Arab tili</p><p class="text-xs" style="color:var(--mint);">Z. Rahimova</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 105</p></div>
-          <div class="lesson-block lesson-bio"><p class="text-xs font-bold" style="color:#15803d;">Biologiya</p><p class="text-xs" style="color:#22c55e;">N. Yusupova</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 307</p></div>
-          <div class="lesson-block lesson-history"><p class="text-xs font-bold" style="color:#be123c;">Tarix</p><p class="text-xs" style="color:#f43f5e;">M. Norova</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 104</p></div>
-          <div class="lesson-block lesson-math"><p class="text-xs font-bold" style="color:#1d4ed8;">Matematika</p><p class="text-xs" style="color:#3b82f6;">M. Aliyev</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 201</p></div>
-
-          <!-- Tanaffus -->
-          <div style="grid-column:1/-1;text-align:center;padding:6px;font-size:11px;font-weight:600;color:var(--gray-400);background:var(--gray-50);border-radius:8px;margin:2px 0;">☕ Katta tanaffus — 11:00–11:30</div>
-
-          <!-- 4-dars: 11:30–12:15 -->
-          <div class="timetable-time">11:30<br><span style="color:var(--gray-400);font-size:10px;">12:15</span></div>
-          <div class="lesson-block lesson-uz"><p class="text-xs font-bold" style="color:#92400e;">O'zbek tili</p><p class="text-xs" style="color:#f59e0b;">S. Karimova</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 108</p></div>
-          <div class="lesson-block lesson-english"><p class="text-xs font-bold" style="color:#6d28d9;">Ingliz tili</p><p class="text-xs" style="color:#8b5cf6;">A. Qodirov</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 106</p></div>
-          <div class="lesson-block lesson-phys"><p class="text-xs font-bold" style="color:#0369a1;">Fizika</p><p class="text-xs" style="color:#0ea5e9;">H. Umarov</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 210</p></div>
-          <div class="lesson-block lesson-math"><p class="text-xs font-bold" style="color:#1d4ed8;">Matematika</p><p class="text-xs" style="color:#3b82f6;">M. Aliyev</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 201</p></div>
-          <div class="lesson-block lesson-arabic"><p class="text-xs font-bold" style="color:var(--mint-dark);">Arab tili</p><p class="text-xs" style="color:var(--mint);">Z. Rahimova</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 105</p></div>
-          <div class="lesson-empty"></div>
-
-          <!-- 5-dars: 12:30–13:15 -->
-          <div class="timetable-time">12:30<br><span style="color:var(--gray-400);font-size:10px;">13:15</span></div>
-          <div class="lesson-block lesson-history"><p class="text-xs font-bold" style="color:#be123c;">Tarix</p><p class="text-xs" style="color:#f43f5e;">M. Norova</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 104</p></div>
-          <div class="lesson-block lesson-bio"><p class="text-xs font-bold" style="color:#15803d;">Biologiya</p><p class="text-xs" style="color:#22c55e;">N. Yusupova</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 307</p></div>
-          <div class="lesson-block lesson-english"><p class="text-xs font-bold" style="color:#6d28d9;">Ingliz tili</p><p class="text-xs" style="color:#8b5cf6;">A. Qodirov</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 106</p></div>
-          <div class="lesson-block lesson-arabic"><p class="text-xs font-bold" style="color:var(--mint-dark);">Arab tili</p><p class="text-xs" style="color:var(--mint);">Z. Rahimova</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 105</p></div>
-          <div class="lesson-block lesson-it"><p class="text-xs font-bold" style="color:#7c3aed;">Informatika</p><p class="text-xs" style="color:#a855f7;">B. Toshmatov</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 302</p></div>
-          <div class="lesson-empty"></div>
-
-          <!-- 6-dars: 13:30–14:15 -->
-          <div class="timetable-time">13:30<br><span style="color:var(--gray-400);font-size:10px;">14:15</span></div>
-          <div class="lesson-block lesson-it"><p class="text-xs font-bold" style="color:#7c3aed;">Informatika</p><p class="text-xs" style="color:#a855f7;">B. Toshmatov</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 302</p></div>
-          <div class="lesson-block lesson-history"><p class="text-xs font-bold" style="color:#be123c;">Tarix</p><p class="text-xs" style="color:#f43f5e;">M. Norova</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 104</p></div>
-          <div class="lesson-block lesson-bio"><p class="text-xs font-bold" style="color:#15803d;">Biologiya</p><p class="text-xs" style="color:#22c55e;">N. Yusupova</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 307</p></div>
-          <div class="lesson-block lesson-it"><p class="text-xs font-bold" style="color:#7c3aed;">Informatika</p><p class="text-xs" style="color:#a855f7;">B. Toshmatov</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 302</p></div>
-          <div class="lesson-block lesson-english"><p class="text-xs font-bold" style="color:#6d28d9;">Ingliz tili</p><p class="text-xs" style="color:#8b5cf6;">A. Qodirov</p><p class="text-xs mt-1" style="color:var(--gray-400);">Xona: 106</p></div>
-          <div class="lesson-empty"></div>
-        </div>
-      </div>
-
-      <!-- Haftalik umumiy ma'lumot -->
-      <div class="grid grid-cols-3 gap-4 mt-5">
-        <div class="card card-sm"><p class="text-xs font-semibold mb-1" style="color:var(--gray-400);">HAFTALIK JAMI DARSLAR</p><p class="text-2xl font-black">34</p><p class="text-xs mt-1" style="color:var(--mint-dark);">Dush–Shan</p></div>
-        <div class="card card-sm"><p class="text-xs font-semibold mb-1" style="color:var(--gray-400);">BUGUNGI DARSLAR</p><p class="text-2xl font-black">6</p><p class="text-xs mt-1" style="color:var(--blue);">08:00 – 14:15</p></div>
-        <div class="card card-sm"><p class="text-xs font-semibold mb-1" style="color:var(--gray-400);">BAND XONALAR</p><p class="text-2xl font-black">12</p><p class="text-xs mt-1" style="color:var(--purple);">18 xonadan</p></div>
+      <!-- Jadval -->
+      <div class="card" style="overflow-x:auto;padding:20px;">
+        <div id="ttGrid" style="min-width:700px;"></div>
       </div>
     </section>
 
-    <!-- ====================================================
-         E. IMTIHONLAR SAHIFASI
-         ==================================================== -->
-    <section id="section-exams" class="content-section">
-
-      <div class="flex items-center justify-between mb-6">
-        <div>
-          <h1 class="section-title">Imtihonlar</h1>
-          <p class="section-sub">2-chorak imtihon natijlari va jadvali</p>
-        </div>
-        <div class="flex gap-2">
-          <button class="btn-outline"><i class="fa-solid fa-file-pdf mr-1.5"></i>Natijalarni Eksport</button>
-          <button class="btn-primary" onclick="showToast('Yangi imtihon rejalashtirish ochildi','success')"><i class="fa-solid fa-plus mr-1.5"></i>Imtihon Rejalashtirish</button>
-        </div>
-      </div>
-
-      <!-- Imtihon statistika -->
-      <div class="grid grid-cols-4 gap-4 mb-6">
-        <div class="rounded-xl p-4" style="background:var(--mint-xlight);border:1px solid var(--mint-light);">
-          <p class="text-xs font-semibold" style="color:var(--mint-dark);">REJALASHTIRILGAN</p>
-          <p class="text-2xl font-black mt-1">24</p>
-          <p class="text-xs mt-1" style="color:var(--gray-400);">Noyabr–Dekabr</p>
-        </div>
-        <div class="rounded-xl p-4" style="background:#eff6ff;border:1px solid #bfdbfe;">
-          <p class="text-xs font-semibold" style="color:#1d4ed8;">O'TKAZILGAN</p>
-          <p class="text-2xl font-black mt-1">16</p>
-          <p class="text-xs mt-1" style="color:var(--gray-400);">Bu chorakda</p>
-        </div>
-        <div class="rounded-xl p-4" style="background:#fffbeb;border:1px solid #fde68a;">
-          <p class="text-xs font-semibold" style="color:#92400e;">O'RT. BALL</p>
-          <p class="text-2xl font-black mt-1">78.4</p>
-          <p class="text-xs mt-1" style="color:var(--gray-400);">100 balldan</p>
-        </div>
-        <div class="rounded-xl p-4" style="background:#fff1f2;border:1px solid #fecdd3;">
-          <p class="text-xs font-semibold" style="color:#be123c;">QONIQARSIZ</p>
-          <p class="text-2xl font-black mt-1">12</p>
-          <p class="text-xs mt-1" style="color:var(--gray-400);">O'quvchi</p>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-5">
-        <!-- Yaqinlashayotgan imtihonlar -->
-        <div class="card">
-          <p class="font-bold mb-4" style="color:var(--gray-800);">Yaqinlashayotgan Imtihonlar</p>
-          <div class="flex flex-col gap-3">
-            <div class="flex items-center justify-between p-3 rounded-xl" style="background:var(--mint-xlight);border:1px solid var(--mint-light);">
-              <div class="flex items-center gap-3">
-                <div style="width:40px;height:40px;background:var(--mint);border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;flex-shrink:0;">28</div>
-                <div><p class="text-sm font-bold" style="color:var(--gray-800);">Matematika — 9-A, 9-B</p><p class="text-xs" style="color:var(--gray-500);">Juma, 09:00 • Xona: 201</p></div>
-              </div>
-              <span class="badge badge-green">3 kun qoldi</span>
-            </div>
-            <div class="flex items-center justify-between p-3 rounded-xl" style="background:#eff6ff;border:1px solid #bfdbfe;">
-              <div class="flex items-center gap-3">
-                <div style="width:40px;height:40px;background:#3b82f6;border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;flex-shrink:0;">29</div>
-                <div><p class="text-sm font-bold" style="color:var(--gray-800);">Arab tili — 7-A, 7-B</p><p class="text-xs" style="color:var(--gray-500);">Shanba, 09:00 • Xona: 105</p></div>
-              </div>
-              <span class="badge badge-blue">4 kun qoldi</span>
-            </div>
-            <div class="flex items-center justify-between p-3 rounded-xl" style="background:#fdf4ff;border:1px solid #e9d5ff;">
-              <div class="flex items-center gap-3">
-                <div style="width:40px;height:40px;background:#8b5cf6;border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;flex-shrink:0;">01</div>
-                <div><p class="text-sm font-bold" style="color:var(--gray-800);">Informatika — 10-A, 10-B</p><p class="text-xs" style="color:var(--gray-500);">Dushanba, 11:30 • Xona: 302</p></div>
-              </div>
-              <span class="badge badge-purple">6 kun qoldi</span>
-            </div>
-            <div class="flex items-center justify-between p-3 rounded-xl" style="background:#fffbeb;border:1px solid #fde68a;">
-              <div class="flex items-center gap-3">
-                <div style="width:40px;height:40px;background:#f59e0b;border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;flex-shrink:0;">03</div>
-                <div><p class="text-sm font-bold" style="color:var(--gray-800);">O'zbek tili — 11-A, 11-B</p><p class="text-xs" style="color:var(--gray-500);">Chorshanba, 08:00 • Xona: 108</p></div>
-              </div>
-              <span class="badge badge-yellow">8 kun qoldi</span>
-            </div>
-            <div class="flex items-center justify-between p-3 rounded-xl" style="background:#fff1f2;border:1px solid #fecdd3;">
-              <div class="flex items-center gap-3">
-                <div style="width:40px;height:40px;background:#f43f5e;border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;flex-shrink:0;">05</div>
-                <div><p class="text-sm font-bold" style="color:var(--gray-800);">Fizika — 8-A, 8-B</p><p class="text-xs" style="color:var(--gray-500);">Juma, 10:00 • Xona: 210</p></div>
-              </div>
-              <span class="badge badge-red">10 kun qoldi</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- So'nggi imtihon natijalari -->
-        <div class="card">
-          <p class="font-bold mb-4" style="color:var(--gray-800);">So'nggi Imtihon Natijalari</p>
-          <table class="data-table">
-            <thead><tr><th>Fan</th><th>Sinf</th><th>O'rt. Ball</th><th>Natija</th></tr></thead>
-            <tbody>
-              <tr><td class="text-xs font-medium">Matematika</td><td><span class="badge badge-gray">11-A</span></td><td><span class="font-bold text-sm" style="color:var(--mint-dark);">87.4</span></td><td><span class="badge badge-green">A'lo</span></td></tr>
-              <tr><td class="text-xs font-medium">Arab tili</td><td><span class="badge badge-gray">9-B</span></td><td><span class="font-bold text-sm" style="color:var(--mint-dark);">92.1</span></td><td><span class="badge badge-green">A'lo</span></td></tr>
-              <tr><td class="text-xs font-medium">Ingliz tili</td><td><span class="badge badge-gray">10-A</span></td><td><span class="font-bold text-sm" style="color:#1d4ed8;">78.6</span></td><td><span class="badge badge-blue">Yaxshi</span></td></tr>
-              <tr><td class="text-xs font-medium">Informatika</td><td><span class="badge badge-gray">8-A</span></td><td><span class="font-bold text-sm" style="color:#1d4ed8;">81.2</span></td><td><span class="badge badge-blue">Yaxshi</span></td></tr>
-              <tr><td class="text-xs font-medium">Tarix</td><td><span class="badge badge-gray">7-A</span></td><td><span class="font-bold text-sm" style="color:#92400e;">65.8</span></td><td><span class="badge badge-yellow">Qoniqarli</span></td></tr>
-              <tr><td class="text-xs font-medium">Biologiya</td><td><span class="badge badge-gray">6-A</span></td><td><span class="font-bold text-sm" style="color:#be123c;">54.3</span></td><td><span class="badge badge-red">Qoniqarsiz</span></td></tr>
-              <tr><td class="text-xs font-medium">Fizika</td><td><span class="badge badge-gray">9-A</span></td><td><span class="font-bold text-sm" style="color:var(--mint-dark);">83.9</span></td><td><span class="badge badge-green">Yaxshi</span></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ====================================================
-         F. MOLIYA SAHIFASI
-         ==================================================== -->
-    <section id="section-finance" class="content-section">
-
-      <div class="flex items-center justify-between mb-6">
-        <div>
-          <h1 class="section-title">Moliya Boshqaruvi</h1>
-          <p class="section-sub">2024-yil, Noyabr oyiga moliyaviy hisobot</p>
-        </div>
-        <div class="flex gap-2">
-          <button class="btn-outline"><i class="fa-solid fa-file-pdf mr-1.5"></i>Hisobot Yuklab Olish</button>
-          <button class="btn-primary" onclick="showToast('Yangi to\'lov qo\'shildi!','success')"><i class="fa-solid fa-plus mr-1.5"></i>To'lov Kiritish</button>
-        </div>
-      </div>
-
-      <!-- Moliyaviy umumiy ko'rsatkichlar -->
-      <div class="grid grid-cols-3 gap-5 mb-6">
-        <!-- Kirim -->
-        <div class="card" style="background:linear-gradient(135deg,#ecfdf5,#d1fae5);">
-          <div class="flex items-center justify-between mb-3">
-            <p class="text-xs font-bold uppercase" style="color:var(--mint-dark);">Jami Oylik Kirim</p>
-            <div style="width:36px;height:36px;background:var(--mint);border-radius:10px;display:flex;align-items:center;justify-content:center;">
-              <i class="fa-solid fa-arrow-trend-up text-white text-sm"></i>
-            </div>
-          </div>
-          <p class="text-3xl font-black" style="color:var(--gray-800);">207,000,000</p>
-          <p class="text-xs mt-1" style="color:var(--mint-dark);">so'm</p>
-          <div class="progress-bar mt-3"><div class="progress-fill" style="width:92%;background:var(--mint);"></div></div>
-          <div class="flex justify-between mt-1"><p class="text-xs" style="color:var(--mint-dark);">92% yig'ilgan</p><p class="text-xs" style="color:var(--gray-400);">Maqsad: 225M</p></div>
-        </div>
-
-        <!-- Chiqim -->
-        <div class="card" style="background:linear-gradient(135deg,#fff1f2,#fee2e2);">
-          <div class="flex items-center justify-between mb-3">
-            <p class="text-xs font-bold uppercase" style="color:#be123c;">Jami Oylik Chiqim</p>
-            <div style="width:36px;height:36px;background:var(--red);border-radius:10px;display:flex;align-items:center;justify-content:center;">
-              <i class="fa-solid fa-arrow-trend-down text-white text-sm"></i>
-            </div>
-          </div>
-          <p class="text-3xl font-black" style="color:var(--gray-800);">142,500,000</p>
-          <p class="text-xs mt-1" style="color:#be123c;">so'm</p>
-          <div class="progress-bar mt-3"><div class="progress-fill" style="width:63%;background:var(--red);"></div></div>
-          <div class="flex justify-between mt-1"><p class="text-xs" style="color:#be123c;">63% sarflangan</p><p class="text-xs" style="color:var(--gray-400);">Byudjet: 180M</p></div>
-        </div>
-
-        <!-- Balans -->
-        <div class="card" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);">
-          <div class="flex items-center justify-between mb-3">
-            <p class="text-xs font-bold uppercase" style="color:#1d4ed8;">Oylik Balans</p>
-            <div style="width:36px;height:36px;background:#3b82f6;border-radius:10px;display:flex;align-items:center;justify-content:center;">
-              <i class="fa-solid fa-scale-balanced text-white text-sm"></i>
-            </div>
-          </div>
-          <p class="text-3xl font-black" style="color:var(--gray-800);">64,500,000</p>
-          <p class="text-xs mt-1" style="color:#1d4ed8;">so'm (sof foyda)</p>
-          <div class="progress-bar mt-3"><div class="progress-fill" style="width:29%;background:#3b82f6;"></div></div>
-          <div class="flex justify-between mt-1"><p class="text-xs" style="color:#1d4ed8;">+12% o'tgan oydan</p><p class="text-xs" style="color:var(--gray-400);">Taxminiy: 58M</p></div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-5">
-
-        <!-- O'qituvchilar maoshi jadvali -->
-        <div class="card" style="padding:0;overflow:hidden;">
-          <div class="flex items-center justify-between p-5 pb-3">
-            <p class="font-bold" style="color:var(--gray-800);">O'qituvchilar Oylik Maoshi</p>
-            <span class="badge badge-green">Noyabr 2024</span>
-          </div>
-          <table class="data-table">
-            <thead><tr><th>O'qituvchi</th><th>Lavozim</th><th>Soatlar</th><th>Maosh</th><th>Status</th></tr></thead>
-            <tbody>
-              <tr><td><div class="flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#10b981,#059669);">MA</div><span class="text-xs font-medium">M. Aliyev</span></div></td><td class="text-xs" style="color:var(--gray-500);">Matematika</td><td class="text-xs font-semibold">28 soat</td><td class="text-xs font-bold" style="color:var(--mint-dark);">4,200,000</td><td><span class="badge badge-green">To'langan</span></td></tr>
-              <tr><td><div class="flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#059669,#047857);">ZR</div><span class="text-xs font-medium">Z. Rahimova</span></div></td><td class="text-xs" style="color:var(--gray-500);">Arab tili</td><td class="text-xs font-semibold">32 soat</td><td class="text-xs font-bold" style="color:var(--mint-dark);">3,800,000</td><td><span class="badge badge-green">To'langan</span></td></tr>
-              <tr><td><div class="flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);">BT</div><span class="text-xs font-medium">B. Toshmatov</span></div></td><td class="text-xs" style="color:var(--gray-500);">Informatika</td><td class="text-xs font-semibold">24 soat</td><td class="text-xs font-bold" style="color:var(--mint-dark);">3,500,000</td><td><span class="badge badge-yellow">Jarayonda</span></td></tr>
-              <tr><td><div class="flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#f59e0b,#d97706);">SK</div><span class="text-xs font-medium">S. Karimova</span></div></td><td class="text-xs" style="color:var(--gray-500);">O'zbek tili</td><td class="text-xs font-semibold">30 soat</td><td class="text-xs font-bold" style="color:var(--mint-dark);">4,000,000</td><td><span class="badge badge-green">To'langan</span></td></tr>
-              <tr><td><div class="flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);">HU</div><span class="text-xs font-medium">H. Umarov</span></div></td><td class="text-xs" style="color:var(--gray-500);">Fizika</td><td class="text-xs font-semibold">26 soat</td><td class="text-xs font-bold" style="color:var(--mint-dark);">3,600,000</td><td><span class="badge badge-red">Kutilmoqda</span></td></tr>
-              <tr><td><div class="flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#ef4444,#b91c1c);">NY</div><span class="text-xs font-medium">N. Yusupova</span></div></td><td class="text-xs" style="color:var(--gray-500);">Biologiya</td><td class="text-xs font-semibold">22 soat</td><td class="text-xs font-bold" style="color:var(--mint-dark);">3,200,000</td><td><span class="badge badge-green">To'langan</span></td></tr>
-              <tr><td><div class="flex items-center gap-2"><div class="avatar" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#0ea5e9,#0284c7);">AQ</div><span class="text-xs font-medium">A. Qodirov</span></div></td><td class="text-xs" style="color:var(--gray-500);">Ingliz tili</td><td class="text-xs font-semibold">30 soat</td><td class="text-xs font-bold" style="color:var(--mint-dark);">4,000,000</td><td><span class="badge badge-green">To'langan</span></td></tr>
-            </tbody>
-          </table>
-          <div class="p-4 flex items-center justify-between" style="border-top:1px solid var(--gray-100);">
-            <p class="text-xs" style="color:var(--gray-400);">35 ta o'qituvchi — Jami:</p>
-            <p class="font-black" style="color:var(--mint-dark);">112,800,000 so'm</p>
-          </div>
-        </div>
-
-        <!-- O'quvchilar to'lov monitoringi -->
-        <div class="card" style="padding:0;overflow:hidden;">
-          <div class="flex items-center justify-between p-5 pb-3">
-            <p class="font-bold" style="color:var(--gray-800);">O'quvchilar To'lov Monitoringi</p>
-            <div class="flex gap-2">
-              <span class="badge badge-green">414 to'lagan</span>
-              <span class="badge badge-red">36 qarzdor</span>
-            </div>
-          </div>
-          <table class="data-table">
-            <thead><tr><th>O'quvchi</th><th>Sinf</th><th>Shartnoma</th><th>To'langan</th><th>Qoldiq</th><th>Status</th></tr></thead>
-            <tbody id="financeStudentsTbody">
-              <!-- JavaScript orqali to'ldiriladi -->
-            </tbody>
-          </table>
-          <div class="p-4 flex items-center justify-between" style="border-top:1px solid var(--gray-100);">
-            <button class="btn-outline text-xs" onclick="showToast('Eslatmalar yuborilmoqda…','info')"><i class="fa-solid fa-bell mr-1.5"></i>Qarzdorlarga SMS Yuborish</button>
-            <p class="font-bold text-sm" style="color:var(--red);">Qoldiq: 18,000,000 so'm</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ====================================================
-         G. SOZLAMALAR SAHIFASI
-         ==================================================== -->
-    <section id="section-settings" class="content-section">
+    <!-- ==================================================
+      F. ADMIN SOZLAMALARI
+    ================================================== -->
+    <section id="sec-settings" class="content-section">
 
       <div class="mb-6">
-        <h1 class="section-title">Tizim Sozlamalari</h1>
-        <p class="section-sub">Maktab ma'lumotlari va tizim konfiguratsiyasi</p>
+        <h1 style="font-size:22px;font-weight:900;color:var(--g8);">Admin Sozlamalari</h1>
+        <p style="font-size:13.5px;color:var(--g5);margin-top:2px;">Tizim konfiguratsiyasi va to'lov muddati</p>
       </div>
 
       <div class="grid grid-cols-2 gap-5">
-        <!-- Maktab ma'lumotlari -->
+
+        <!-- To'lov muddati sozlamasi -->
         <div class="card">
-          <p class="font-bold mb-4" style="color:var(--gray-800);">Maktab Ma'lumotlari</p>
-          <div class="flex flex-col gap-4">
-            <div>
-              <label class="text-xs font-semibold block mb-1.5" style="color:var(--gray-500);">MAKTAB NOMI</label>
-              <input type="text" value="Zamaxshariy Izdoshlari Xususiy Maktabi" class="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style="background:var(--gray-50);border:1.5px solid var(--gray-200);color:var(--gray-700);" />
+          <div class="flex items-center gap-3 mb-5">
+            <div style="width:42px;height:42px;background:linear-gradient(135deg,var(--m),var(--md));border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-size:18px;">
+              <i class="fa-solid fa-calendar-check"></i>
             </div>
             <div>
-              <label class="text-xs font-semibold block mb-1.5" style="color:var(--gray-500);">MAKTAB DIREKTORI</label>
-              <input type="text" value="Abrorjon Abdusalimov" class="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style="background:var(--gray-50);border:1.5px solid var(--gray-200);color:var(--gray-700);" />
+              <p style="font-size:15px;font-weight:700;color:var(--g8);">To'lov Muddati (Deadline)</p>
+              <p style="font-size:12px;color:var(--g4);">Har oyning nechanchi sanasigacha to'lov qilinishi kerak</p>
             </div>
-            <div>
-              <label class="text-xs font-semibold block mb-1.5" style="color:var(--gray-500);">MANZIL</label>
-              <input type="text" value="Toshkent shahri, Mirzo Ulug'bek tumani" class="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style="background:var(--gray-50);border:1.5px solid var(--gray-200);color:var(--gray-700);" />
-            </div>
-            <div class="grid grid-cols-2 gap-3">
+          </div>
+          <div style="background:var(--mx);border-radius:14px;padding:20px;border:1.5px solid var(--ml);">
+            <label style="font-size:12px;font-weight:700;color:var(--md);display:block;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;">Deadline sanasi (oyning kuni)</label>
+            <div class="flex items-center gap-3">
+              <input type="number" id="deadlineInput" min="1" max="31" value="5"
+                style="width:80px;padding:10px 14px;border-radius:10px;border:1.5px solid var(--ml);background:white;font-size:20px;font-weight:800;color:var(--md);text-align:center;outline:none;"
+                oninput="updateDeadline()"/>
               <div>
-                <label class="text-xs font-semibold block mb-1.5" style="color:var(--gray-500);">TELEFON</label>
-                <input type="text" value="+998 71 234 56 78" class="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style="background:var(--gray-50);border:1.5px solid var(--gray-200);color:var(--gray-700);" />
-              </div>
-              <div>
-                <label class="text-xs font-semibold block mb-1.5" style="color:var(--gray-500);">ELEKTRON POCHTA</label>
-                <input type="text" value="info@zamaxshariy.uz" class="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style="background:var(--gray-50);border:1.5px solid var(--gray-200);color:var(--gray-700);" />
+                <p style="font-size:13px;font-weight:600;color:var(--g7);">-sanagacha</p>
+                <p style="font-size:11.5px;color:var(--g4);">Masalan: 5 = oyning 5-sanasigacha</p>
               </div>
             </div>
-            <div>
-              <label class="text-xs font-semibold block mb-1.5" style="color:var(--gray-500);">LITSENZIYA RAQAMI</label>
-              <input type="text" value="PL-2024-UZ-04821" class="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style="background:var(--gray-50);border:1.5px solid var(--gray-200);color:var(--gray-700);" />
+            <div style="margin-top:14px;padding:12px;background:white;border-radius:10px;border:1px solid var(--ml);">
+              <p style="font-size:12px;color:var(--g5);">⚠️ <strong style="color:var(--g7);">Qoida:</strong> Deadline o'tgach va o'quvchi "Qarzdor" bo'lsa, uning baholash jurnali <strong style="color:var(--r);">avtomatik bloklanadi</strong>. To'lov qilinganda qulf ochiladi.</p>
             </div>
-            <div class="flex gap-3 mt-2">
-              <button class="btn-primary flex-1" onclick="showToast('Maktab ma\'lumotlari saqlandi!','success')"><i class="fa-solid fa-floppy-disk mr-1.5"></i>Saqlash</button>
-              <button class="btn-outline" onclick="showToast('O\'zgarishlar bekor qilindi','info')">Bekor qilish</button>
+            <button class="btn-pr" style="margin-top:14px;width:100%;" onclick="saveDeadline()">
+              <i class="fa-solid fa-floppy-disk mr-1.5"></i>Deadlineʼni Saqlash
+            </button>
+          </div>
+
+          <!-- Tizim sanasi simulyatori -->
+          <div style="margin-top:20px;background:linear-gradient(135deg,#064e3b,#065f46);border-radius:14px;padding:20px;">
+            <p style="font-size:13.5px;font-weight:700;color:white;margin-bottom:4px;">🗓 Tizim Sanasi Simulyatori</p>
+            <p style="font-size:12px;color:rgba(255,255,255,.65);margin-bottom:14px;">Quyidagi raqamni o'zgartirib Deadline bloklashini sinab ko'ring</p>
+            <div class="flex items-center gap-3">
+              <input type="number" id="simDay2" min="1" max="31" value="4"
+                class="date-sim-inp w-24 text-center"
+                style="font-size:20px;font-weight:800;"
+                oninput="syncSimDay(this);applyDeadlineLock()"/>
+              <div>
+                <p style="color:white;font-size:13px;font-weight:600;">— oyning kuni</p>
+                <p style="color:rgba(255,255,255,.6);font-size:11.5px;">Navbar bilan sinxron</p>
+              </div>
             </div>
+            <div id="simStatus" style="margin-top:12px;padding:10px 14px;border-radius:10px;font-size:12.5px;font-weight:600;"></div>
           </div>
         </div>
 
-        <!-- Akademik sozlamalar -->
+        <!-- Maktab ma'lumotlari -->
         <div class="flex flex-col gap-5">
           <div class="card">
-            <p class="font-bold mb-4" style="color:var(--gray-800);">Akademik Sozlamalar</p>
+            <p style="font-size:15px;font-weight:700;color:var(--g8);margin-bottom:16px;">Maktab Ma'lumotlari</p>
             <div class="flex flex-col gap-3">
-              <div class="flex items-center justify-between p-3 rounded-xl" style="background:var(--gray-50);">
-                <div><p class="text-sm font-semibold" style="color:var(--gray-700);">O'quv yili boshlanishi</p><p class="text-xs" style="color:var(--gray-400);">Hozirgi o'quv yili</p></div>
-                <span class="badge badge-blue">1-Sentabr 2024</span>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:var(--g4);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">MAKTAB NOMI</label>
+                <input type="text" value="Zamaxshariy Izdoshlari Xususiy Maktabi" style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--g2);background:var(--g0);font-size:13.5px;outline:none;color:var(--g7);" oninput=""/>
               </div>
-              <div class="flex items-center justify-between p-3 rounded-xl" style="background:var(--gray-50);">
-                <div><p class="text-sm font-semibold" style="color:var(--gray-700);">O'quv yili tugashi</p><p class="text-xs" style="color:var(--gray-400);">Rejalashtirilgan sana</p></div>
-                <span class="badge badge-green">31-May 2025</span>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:var(--g4);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">DIREKTOR</label>
+                <input type="text" value="Abrorjon Abdusalimov" style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--g2);background:var(--g0);font-size:13.5px;outline:none;color:var(--g7);" oninput=""/>
               </div>
-              <div class="flex items-center justify-between p-3 rounded-xl" style="background:var(--gray-50);">
-                <div><p class="text-sm font-semibold" style="color:var(--gray-700);">Joriy chorak</p><p class="text-xs" style="color:var(--gray-400);">2024-2025 o'quv yili</p></div>
-                <span class="badge badge-yellow">2-chorak</span>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label style="font-size:11px;font-weight:700;color:var(--g4);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">TELEFON</label>
+                  <input type="text" value="+998 71 234 56 78" style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--g2);background:var(--g0);font-size:13.5px;outline:none;color:var(--g7);" oninput=""/>
+                </div>
+                <div>
+                  <label style="font-size:11px;font-weight:700;color:var(--g4);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">LITSENZIYA</label>
+                  <input type="text" value="PL-2024-UZ-04821" style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--g2);background:var(--g0);font-size:13.5px;outline:none;color:var(--g7);" oninput=""/>
+                </div>
               </div>
-              <div class="flex items-center justify-between p-3 rounded-xl" style="background:var(--gray-50);">
-                <div><p class="text-sm font-semibold" style="color:var(--gray-700);">Baholash tizimi</p><p class="text-xs" style="color:var(--gray-400);">O'quvchilar bahosi</p></div>
-                <span class="badge badge-purple">5 balli tizim</span>
-              </div>
-              <div class="flex items-center justify-between p-3 rounded-xl" style="background:var(--gray-50);">
-                <div><p class="text-sm font-semibold" style="color:var(--gray-700);">Oylik to'lov miqdori</p><p class="text-xs" style="color:var(--gray-400);">Bir o'quvchi uchun</p></div>
-                <span class="text-sm font-bold" style="color:var(--mint-dark);">500,000 so'm</span>
-              </div>
+              <button class="btn-pr" style="margin-top:4px;" onclick="toast('Maktab ma\'lumotlari saqlandi!','g')">
+                <i class="fa-solid fa-floppy-disk mr-1.5"></i>Saqlash
+              </button>
             </div>
           </div>
 
+          <!-- To'lov miqdori -->
           <div class="card">
-            <p class="font-bold mb-4" style="color:var(--gray-800);">Tizim Xavfsizligi</p>
+            <p style="font-size:15px;font-weight:700;color:var(--g8);margin-bottom:14px;">To'lov Miqdori Sozlamasi</p>
             <div class="flex flex-col gap-3">
-              <div class="flex items-center justify-between">
-                <div><p class="text-sm font-semibold" style="color:var(--gray-700);">Ikki bosqichli tasdiqlash</p><p class="text-xs" style="color:var(--gray-400);">2FA yoqilgan</p></div>
-                <div style="width:44px;height:24px;background:var(--mint);border-radius:12px;position:relative;cursor:pointer;" onclick="showToast('Sozlama yangilandi','success')"><div style="width:18px;height:18px;background:white;border-radius:50%;position:absolute;right:3px;top:3px;"></div></div>
+              <div class="flex items-center justify-between p-3 rounded-xl" style="background:var(--g0);">
+                <div>
+                  <p style="font-size:13px;font-weight:600;color:var(--g7);">5-sinf oylik to'lov</p>
+                </div>
+                <input type="text" value="2,500,000 so'm" style="width:160px;padding:7px 12px;border-radius:8px;border:1.5px solid var(--g2);font-size:13px;font-weight:600;color:var(--md);text-align:right;outline:none;background:white;" oninput=""/>
               </div>
-              <div class="flex items-center justify-between">
-                <div><p class="text-sm font-semibold" style="color:var(--gray-700);">Avtomatik chiqish</p><p class="text-xs" style="color:var(--gray-400);">30 daqiqadan so'ng</p></div>
-                <div style="width:44px;height:24px;background:var(--mint);border-radius:12px;position:relative;cursor:pointer;"><div style="width:18px;height:18px;background:white;border-radius:50%;position:absolute;right:3px;top:3px;"></div></div>
+              <div class="flex items-center justify-between p-3 rounded-xl" style="background:var(--g0);">
+                <p style="font-size:13px;font-weight:600;color:var(--g7);">6-sinf oylik to'lov</p>
+                <input type="text" value="2,700,000 so'm" style="width:160px;padding:7px 12px;border-radius:8px;border:1.5px solid var(--g2);font-size:13px;font-weight:600;color:var(--md);text-align:right;outline:none;background:white;" oninput=""/>
               </div>
-              <div class="flex items-center justify-between">
-                <div><p class="text-sm font-semibold" style="color:var(--gray-700);">Faoliyat jurnali</p><p class="text-xs" style="color:var(--gray-400);">Barcha harakatlarni qayd etish</p></div>
-                <div style="width:44px;height:24px;background:var(--gray-300);border-radius:12px;position:relative;cursor:pointer;" onclick="showToast('Jurnal yoqildi!','success')"><div style="width:18px;height:18px;background:white;border-radius:50%;position:absolute;left:3px;top:3px;"></div></div>
+              <div class="flex items-center justify-between p-3 rounded-xl" style="background:var(--g0);">
+                <p style="font-size:13px;font-weight:600;color:var(--g7);">7-sinf oylik to'lov</p>
+                <input type="text" value="3,000,000 so'm" style="width:160px;padding:7px 12px;border-radius:8px;border:1.5px solid var(--g2);font-size:13px;font-weight:600;color:var(--md);text-align:right;outline:none;background:white;" oninput=""/>
               </div>
+              <div class="flex items-center justify-between p-3 rounded-xl" style="background:var(--g0);">
+                <p style="font-size:13px;font-weight:600;color:var(--g7);">8-sinf oylik to'lov</p>
+                <input type="text" value="3,200,000 so'm" style="width:160px;padding:7px 12px;border-radius:8px;border:1.5px solid var(--g2);font-size:13px;font-weight:600;color:var(--md);text-align:right;outline:none;background:white;" oninput=""/>
+              </div>
+              <button class="btn-pr" onclick="toast('To\'lov miqdorlari yangilandi!','g')">
+                <i class="fa-solid fa-floppy-disk mr-1.5"></i>Miqdorlarni Saqlash
+              </button>
             </div>
-            <button class="btn-primary w-full mt-4" onclick="showToast('Xavfsizlik sozlamalari yangilandi!','success')"><i class="fa-solid fa-shield-halved mr-1.5"></i>Sozlamalarni Saqlash</button>
           </div>
         </div>
       </div>
@@ -1351,86 +908,25 @@
   </main>
 </div>
 
-<!-- ============================================================
-     MODAL: O'QUVCHI QO'SHISH
-     ============================================================ -->
-<div class="modal-overlay" id="addStudentModal">
-  <div class="modal-box">
-    <div class="flex items-center justify-between mb-5">
-      <p class="text-lg font-black" style="color:var(--gray-800);">Yangi O'quvchi Qo'shish</p>
-      <button onclick="document.getElementById('addStudentModal').classList.remove('open')" class="btn-icon"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="flex flex-col gap-3">
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="text-xs font-semibold block mb-1.5" style="color:var(--gray-500);">ISM</label>
-          <input type="text" placeholder="Asadbek" class="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style="background:var(--gray-50);border:1.5px solid var(--gray-200);" />
-        </div>
-        <div>
-          <label class="text-xs font-semibold block mb-1.5" style="color:var(--gray-500);">FAMILIYA</label>
-          <input type="text" placeholder="Olimov" class="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style="background:var(--gray-50);border:1.5px solid var(--gray-200);" />
-        </div>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="text-xs font-semibold block mb-1.5" style="color:var(--gray-500);">SINF</label>
-          <select class="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style="background:var(--gray-50);border:1.5px solid var(--gray-200);">
-            <option>1-A</option><option>2-A</option><option>3-A</option><option>4-A</option>
-            <option>5-A</option><option>5-B</option><option>6-A</option><option>7-A</option>
-            <option>8-A</option><option>9-A</option><option>9-B</option><option>10-A</option>
-            <option>11-A</option><option>11-B</option>
-          </select>
-        </div>
-        <div>
-          <label class="text-xs font-semibold block mb-1.5" style="color:var(--gray-500);">TUG'ILGAN SANA</label>
-          <input type="date" class="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style="background:var(--gray-50);border:1.5px solid var(--gray-200);" />
-        </div>
-      </div>
-      <div>
-        <label class="text-xs font-semibold block mb-1.5" style="color:var(--gray-500);">OTA-ONASI TELEFONI</label>
-        <input type="text" placeholder="+998 90 123 45 67" class="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style="background:var(--gray-50);border:1.5px solid var(--gray-200);" />
-      </div>
-      <div>
-        <label class="text-xs font-semibold block mb-1.5" style="color:var(--gray-500);">MANZIL</label>
-        <input type="text" placeholder="Toshkent shahri, …" class="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style="background:var(--gray-50);border:1.5px solid var(--gray-200);" />
-      </div>
-      <div class="flex gap-3 mt-2">
-        <button class="btn-primary flex-1" onclick="addStudentFromModal()"><i class="fa-solid fa-user-plus mr-1.5"></i>Qo'shish</button>
-        <button class="btn-outline" onclick="document.getElementById('addStudentModal').classList.remove('open')">Bekor qilish</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- TOAST BILDIRISHNOMA -->
+<!-- TOAST -->
 <div id="toast"></div>
 
 <!-- ============================================================
-     JAVASCRIPT — TO'LIQ MANTIQ VA MA'LUMOTLAR
-     ============================================================ -->
+  JAVASCRIPT — TO'LIQ MANTIQ
+============================================================ -->
 <script>
-// ===== O'QUVCHILAR MA'LUMOTLARI =====
-// Har bir o'quvchi uchun to'liq ma'lumot massivi
-const studentsData = [
-  { ism: 'Asadbek Olimov',       sinf: 7,  sinfHarf: '7-A', ota: 'Olimov Jamshid',    telefon: '+998 90 123 45 67', reyting: 96.4, davomat: 98, tolov: 'tolangan' },
-  { ism: 'Mohira Xasanova',      sinf: 9,  sinfHarf: '9-B', ota: 'Xasanov Alisher',   telefon: '+998 91 234 56 78', reyting: 94.2, davomat: 95, tolov: 'tolangan' },
-  { ism: 'Jasur Toshmatov',      sinf: 11, sinfHarf: '11-A',ota: 'Toshmatov Behruz',  telefon: '+998 93 345 67 89', reyting: 92.8, davomat: 97, tolov: 'tolangan' },
-  { ism: 'Zulfiya Karimova',     sinf: 5,  sinfHarf: '5-A', ota: 'Karimov Sardor',    telefon: '+998 94 456 78 90', reyting: 88.5, davomat: 92, tolov: 'qarzdor'  },
-  { ism: 'Asilbek Normatov',     sinf: 8,  sinfHarf: '8-A', ota: 'Normatov Ulug\'bek',telefon: '+998 95 567 89 01', reyting: 85.1, davomat: 90, tolov: 'tolangan' },
-  { ism: 'Dilnoza Yusupova',     sinf: 6,  sinfHarf: '6-A', ota: 'Yusupov Kamol',     telefon: '+998 97 678 90 12', reyting: 91.3, davomat: 94, tolov: 'tolangan' },
-  { ism: 'Sherzod Abdullayev',   sinf: 10, sinfHarf: '10-A',ota: 'Abdullayev Sobir',  telefon: '+998 99 789 01 23', reyting: 79.6, davomat: 88, tolov: 'qarzdor'  },
-  { ism: 'Nilufar Mirzayeva',    sinf: 3,  sinfHarf: '3-A', ota: 'Mirzayev Botir',    telefon: '+998 90 890 12 34', reyting: 93.7, davomat: 96, tolov: 'tolangan' },
-  { ism: 'Bekzod Rahimov',       sinf: 4,  sinfHarf: '4-A', ota: 'Rahimov Saidakbar', telefon: '+998 91 901 23 45', reyting: 82.4, davomat: 91, tolov: 'qarzdor'  },
-  { ism: 'Sabohat Qodirov',      sinf: 1,  sinfHarf: '1-A', ota: 'Qodirov Azamjon',   telefon: '+998 93 012 34 56', reyting: 87.9, davomat: 93, tolov: 'tolangan' },
-  { ism: 'Mansur Ergashev',      sinf: 11, sinfHarf: '11-B',ota: 'Ergashev Hamidjon', telefon: '+998 94 123 45 60', reyting: 95.1, davomat: 99, tolov: 'tolangan' },
-  { ism: 'Feruza Nazarova',      sinf: 9,  sinfHarf: '9-A', ota: 'Nazarov Elmurod',   telefon: '+998 95 234 56 71', reyting: 76.8, davomat: 85, tolov: 'qarzdor'  },
-  { ism: 'Ortiq Sobirov',        sinf: 2,  sinfHarf: '2-A', ota: 'Sobirov Odil',      telefon: '+998 97 345 67 82', reyting: 80.2, davomat: 89, tolov: 'tolangan' },
-  { ism: 'Kamola Umarova',       sinf: 5,  sinfHarf: '5-B', ota: 'Umarov Hamza',      telefon: '+998 99 456 78 93', reyting: 90.4, davomat: 95, tolov: 'tolangan' },
-  { ism: 'Nodir Sultonov',       sinf: 7,  sinfHarf: '7-A', ota: 'Sultonov Aziz',     telefon: '+998 90 567 89 04', reyting: 83.7, davomat: 90, tolov: 'qarzdor'  },
-];
+// ===================================================================
+// 1. MA'LUMOTLAR
+// ===================================================================
 
-// Avatar gradientlari
-const avatarColors = [
+// Deadline — standart holat: 5-sana
+let DEADLINE = 5;
+
+// Joriy kun simulyatori (default: 4 — deadline'dan oldin)
+let SIM_DAY = 4;
+
+// Avatar fon ranglari
+const AVBG = [
   'linear-gradient(135deg,#10b981,#059669)',
   'linear-gradient(135deg,#3b82f6,#1d4ed8)',
   'linear-gradient(135deg,#8b5cf6,#6d28d9)',
@@ -1439,218 +935,596 @@ const avatarColors = [
   'linear-gradient(135deg,#0ea5e9,#0284c7)',
   'linear-gradient(135deg,#22c55e,#15803d)',
   'linear-gradient(135deg,#a855f7,#7e22ce)',
+  'linear-gradient(135deg,#f43f5e,#be123c)',
+  'linear-gradient(135deg,#14b8a6,#0f766e)',
+  'linear-gradient(135deg,#e879f9,#a21caf)',
+  'linear-gradient(135deg,#fb923c,#c2410c)',
+  'linear-gradient(135deg,#34d399,#059669)',
+  'linear-gradient(135deg,#818cf8,#4338ca)',
+  'linear-gradient(135deg,#fbbf24,#b45309)',
 ];
 
-// O'quvchilar ro'yxatini HTML jadvaliga chiqarish
-function renderStudents(filter) {
-  const tbody = document.getElementById('studentsTbody');
-  if (!tbody) return;
-  // Filterlash: 'all' bo'lsa hammasi, aks holda sinf raqami bo'yicha
-  const filtered = filter === 'all' ? studentsData : studentsData.filter(s => s.sinf === parseInt(filter));
-  tbody.innerHTML = filtered.map((s, i) => {
-    const initials = s.ism.split(' ').map(w => w[0]).join('').slice(0, 2);
-    const bg = avatarColors[i % avatarColors.length];
-    const tolovBadge = s.tolov === 'tolangan'
-      ? `<span class="badge badge-green"><i class="fa-solid fa-circle-check text-xs"></i>To'langan</span>`
-      : `<span class="badge badge-red"><i class="fa-solid fa-circle-xmark text-xs"></i>Qarzdor</span>`;
-    const reytingColor = s.reyting >= 90 ? 'color:var(--mint-dark)' : s.reyting >= 75 ? 'color:#1d4ed8' : 'color:var(--red)';
-    const davomatColor = s.davomat >= 95 ? 'color:var(--mint-dark)' : s.davomat >= 85 ? 'color:#d97706' : 'color:var(--red)';
+// O'quvchilar asosiy ma'lumotlar massivi
+const STUDENTS = [
+  { id:1,  ism:"Asadbek Olimov",      sinf:7, ota:"Olimov Jamshid",       tel:"+998 90 123 45 67", tolov:2500000, paid:true,  xulq:9,  uy:9,  ish:10 },
+  { id:2,  ism:"Rayhona Aliyeva",     sinf:5, ota:"Aliyeva Dilnoza",      tel:"+998 91 234 56 78", tolov:2500000, paid:false, xulq:8,  uy:7,  ish:9  },
+  { id:3,  ism:"Muhammadali Karimov", sinf:8, ota:"Karimov Sherzod",      tel:"+998 93 345 67 89", tolov:3200000, paid:true,  xulq:10, uy:10, ish:10 },
+  { id:4,  ism:"Sabrina Yusupova",    sinf:6, ota:"Yusupov Kamol",        tel:"+998 94 456 78 90", tolov:2700000, paid:false, xulq:6,  uy:5,  ish:7  },
+  { id:5,  ism:"Jasur Toshmatov",     sinf:7, ota:"Toshmatov Behruz",     tel:"+998 95 567 89 01", tolov:3000000, paid:true,  xulq:9,  uy:8,  ish:9  },
+  { id:6,  ism:"Nilufar Rahimova",    sinf:5, ota:"Rahimov Saidakbar",    tel:"+998 97 678 90 12", tolov:2500000, paid:true,  xulq:8,  uy:9,  ish:8  },
+  { id:7,  ism:"Bekzod Normatov",     sinf:8, ota:"Normatov Ulug'bek",    tel:"+998 99 789 01 23", tolov:3200000, paid:false, xulq:7,  uy:6,  ish:8  },
+  { id:8,  ism:"Kamola Mirzayeva",    sinf:6, ota:"Mirzayev Botir",       tel:"+998 90 890 12 34", tolov:2700000, paid:true,  xulq:10, uy:10, ish:9  },
+  { id:9,  ism:"Sherzod Ergashev",    sinf:5, ota:"Ergashev Hamidjon",    tel:"+998 91 901 23 45", tolov:2500000, paid:false, xulq:5,  uy:6,  ish:6  },
+  { id:10, ism:"Feruza Nazarova",     sinf:7, ota:"Nazarov Elmurod",      tel:"+998 93 012 34 56", tolov:3000000, paid:true,  xulq:9,  uy:8,  ish:10 },
+  { id:11, ism:"Mansur Abdullayev",   sinf:8, ota:"Abdullayev Sobir",     tel:"+998 94 123 45 60", tolov:3200000, paid:true,  xulq:10, uy:9,  ish:10 },
+  { id:12, ism:"Zulfiya Sobirov",     sinf:6, ota:"Sobirov Odil",         tel:"+998 95 234 56 71", tolov:2700000, paid:false, xulq:7,  uy:7,  ish:8  },
+  { id:13, ism:"Asilbek Qodirov",     sinf:5, ota:"Qodirov Azamjon",      tel:"+998 97 345 67 82", tolov:2500000, paid:true,  xulq:8,  uy:9,  ish:9  },
+  { id:14, ism:"Sarvinoz Hamidova",   sinf:8, ota:"Hamidov Jahongir",     tel:"+998 99 456 78 93", tolov:3200000, paid:false, xulq:6,  uy:7,  ish:7  },
+  { id:15, ism:"Nodir Sultonov",      sinf:7, ota:"Sultonov Aziz",        tel:"+998 90 567 89 04", tolov:3000000, paid:true,  xulq:9,  uy:10, ish:9  },
+];
+
+// Dars jadvali ma'lumotlari (har bir sinf uchun)
+// format: [vaqt, Dushanba, Seshanba, Chorshanba, Payshanba, Juma, Shanba]
+const TIMETABLE = {
+  5:[
+    ["08:00–08:45", {n:"Matematika",   u:"M. Aliyev",    cls:"lb-math"},  {n:"Arab tili",    u:"Z. Rahimova",  cls:"lb-arb"},  {n:"Informatika",  u:"B. Toshmatov", cls:"lb-it"},   {n:"Notiqlik",     u:"S. Karimova",  cls:"lb-notq"}, {n:"Sun'iy Int.", u:"B. Toshmatov", cls:"lb-ai"},   {n:"Zakovat",      u:"H. Umarov",    cls:"lb-zak"}],
+    ["09:00–09:45", {n:"Arab tili",    u:"Z. Rahimova",  cls:"lb-arb"},  {n:"Matematika",   u:"M. Aliyev",    cls:"lb-math"}, {n:"Notiqlik",     u:"S. Karimova",  cls:"lb-notq"},{n:"Sun'iy Int.", u:"B. Toshmatov", cls:"lb-ai"},   {n:"Matematika",   u:"M. Aliyev",    cls:"lb-math"}, {n:"Informatika",  u:"B. Toshmatov", cls:"lb-it"}],
+    ["10:00–10:45", {n:"Sun'iy Int.", u:"B. Toshmatov", cls:"lb-ai"},   {n:"Notiqlik",     u:"S. Karimova",  cls:"lb-notq"},{n:"Arab tili",    u:"Z. Rahimova",  cls:"lb-arb"},  {n:"Zakovat",      u:"H. Umarov",    cls:"lb-zak"},  {n:"Arab tili",    u:"Z. Rahimova",  cls:"lb-arb"},  {n:"J. Tarbiya",   u:"N. Yusupov",   cls:"lb-pe"}],
+    ["11:30–12:15", {n:"Notiqlik",    u:"S. Karimova",  cls:"lb-notq"}, {n:"Informatika",  u:"B. Toshmatov", cls:"lb-it"},   {n:"Matematika",   u:"M. Aliyev",    cls:"lb-math"}, {n:"Informatika",  u:"B. Toshmatov", cls:"lb-it"},   {n:"Zakovat",      u:"H. Umarov",    cls:"lb-zak"},  null],
+    ["12:30–13:15", {n:"Zakovat",     u:"H. Umarov",    cls:"lb-zak"},  {n:"Sun'iy Int.", u:"B. Toshmatov", cls:"lb-ai"},   {n:"Zakovat",      u:"H. Umarov",    cls:"lb-zak"},  {n:"Arab tili",    u:"Z. Rahimova",  cls:"lb-arb"},  {n:"Notiqlik",     u:"S. Karimova",  cls:"lb-notq"}, null],
+    ["13:30–14:15", {n:"Informatika", u:"B. Toshmatov", cls:"lb-it"},   {n:"Zakovat",     u:"H. Umarov",    cls:"lb-zak"},  {n:"Sun'iy Int.", u:"B. Toshmatov", cls:"lb-ai"},   {n:"J. Tarbiya",   u:"N. Yusupov",   cls:"lb-pe"},   null,                                                      null],
+  ],
+  6:[
+    ["08:00–08:45", {n:"Matematika",   u:"M. Aliyev",    cls:"lb-math"}, {n:"Arab tili",    u:"Z. Rahimova",  cls:"lb-arb"},  {n:"Sun'iy Int.", u:"B. Toshmatov", cls:"lb-ai"},   {n:"Informatika",  u:"B. Toshmatov", cls:"lb-it"},   {n:"Notiqlik",     u:"S. Karimova",  cls:"lb-notq"}, {n:"Zakovat",     u:"H. Umarov",    cls:"lb-zak"}],
+    ["09:00–09:45", {n:"Arab tili",    u:"Z. Rahimova",  cls:"lb-arb"},  {n:"Matematika",   u:"M. Aliyev",    cls:"lb-math"}, {n:"Informatika",  u:"B. Toshmatov", cls:"lb-it"},   {n:"Notiqlik",     u:"S. Karimova",  cls:"lb-notq"}, {n:"Matematika",   u:"M. Aliyev",    cls:"lb-math"}, {n:"J. Tarbiya",  u:"N. Yusupov",   cls:"lb-pe"}],
+    ["10:00–10:45", {n:"Notiqlik",     u:"S. Karimova",  cls:"lb-notq"},{n:"Sun'iy Int.", u:"B. Toshmatov", cls:"lb-ai"},   {n:"Arab tili",    u:"Z. Rahimova",  cls:"lb-arb"},  {n:"Zakovat",      u:"H. Umarov",    cls:"lb-zak"},  {n:"Arab tili",    u:"Z. Rahimova",  cls:"lb-arb"},  {n:"Matematika",  u:"M. Aliyev",    cls:"lb-math"}],
+    ["11:30–12:15", {n:"Zakovat",      u:"H. Umarov",    cls:"lb-zak"},  {n:"Informatika",  u:"B. Toshmatov", cls:"lb-it"},   {n:"Notiqlik",     u:"S. Karimova",  cls:"lb-notq"},{n:"Sun'iy Int.", u:"B. Toshmatov", cls:"lb-ai"},   {n:"Zakovat",      u:"H. Umarov",    cls:"lb-zak"},  null],
+    ["12:30–13:15", {n:"Sun'iy Int.", u:"B. Toshmatov", cls:"lb-ai"},   {n:"Zakovat",      u:"H. Umarov",    cls:"lb-zak"},  {n:"Matematika",   u:"M. Aliyev",    cls:"lb-math"}, {n:"Arab tili",    u:"Z. Rahimova",  cls:"lb-arb"},  {n:"Informatika",  u:"B. Toshmatov", cls:"lb-it"},   null],
+    ["13:30–14:15", {n:"Informatika",  u:"B. Toshmatov", cls:"lb-it"},   {n:"Notiqlik",     u:"S. Karimova",  cls:"lb-notq"},{n:"J. Tarbiya",   u:"N. Yusupov",   cls:"lb-pe"},   null,                                                      null,                                                    null],
+  ],
+  7:[
+    ["08:00–08:45", {n:"Matematika",   u:"M. Aliyev",    cls:"lb-math"}, {n:"Arab tili",    u:"Z. Rahimova",  cls:"lb-arb"},  {n:"Informatika",  u:"B. Toshmatov", cls:"lb-it"},   {n:"Notiqlik",     u:"S. Karimova",  cls:"lb-notq"}, {n:"Sun'iy Int.", u:"B. Toshmatov", cls:"lb-ai"},   {n:"Zakovat",     u:"H. Umarov",    cls:"lb-zak"}],
+    ["09:00–09:45", {n:"Arab tili",    u:"Z. Rahimova",  cls:"lb-arb"},  {n:"Sun'iy Int.", u:"B. Toshmatov", cls:"lb-ai"},   {n:"Matematika",   u:"M. Aliyev",    cls:"lb-math"}, {n:"Arab tili",    u:"Z. Rahimova",  cls:"lb-arb"},  {n:"Matematika",   u:"M. Aliyev",    cls:"lb-math"}, {n:"Informatika", u:"B. Toshmatov", cls:"lb-it"}],
+    ["10:00–10:45", {n:"Sun'iy Int.", u:"B. Toshmatov", cls:"lb-ai"},   {n:"Informatika",  u:"B. Toshmatov", cls:"lb-it"},   {n:"Arab tili",    u:"Z. Rahimova",  cls:"lb-arb"},  {n:"Zakovat",      u:"H. Umarov",    cls:"lb-zak"},  {n:"Notiqlik",     u:"S. Karimova",  cls:"lb-notq"}, {n:"Arab tili",   u:"Z. Rahimova",  cls:"lb-arb"}],
+    ["11:30–12:15", {n:"Notiqlik",    u:"S. Karimova",  cls:"lb-notq"}, {n:"Matematika",   u:"M. Aliyev",    cls:"lb-math"}, {n:"Sun'iy Int.", u:"B. Toshmatov", cls:"lb-ai"},   {n:"Informatika",  u:"B. Toshmatov", cls:"lb-it"},   {n:"Zakovat",      u:"H. Umarov",    cls:"lb-zak"},  null],
+    ["12:30–13:15", {n:"Zakovat",     u:"H. Umarov",    cls:"lb-zak"},  {n:"Notiqlik",     u:"S. Karimova",  cls:"lb-notq"},{n:"Zakovat",      u:"H. Umarov",    cls:"lb-zak"},  {n:"Sun'iy Int.", u:"B. Toshmatov", cls:"lb-ai"},   {n:"Arab tili",    u:"Z. Rahimova",  cls:"lb-arb"},  null],
+    ["13:30–14:15", {n:"Informatika", u:"B. Toshmatov", cls:"lb-it"},   {n:"Zakovat",      u:"H. Umarov",    cls:"lb-zak"},  {n:"Notiqlik",     u:"S. Karimova",  cls:"lb-notq"},{n:"J. Tarbiya",   u:"N. Yusupov",   cls:"lb-pe"},   null,                                                    null],
+  ],
+  8:[
+    ["08:00–08:45", {n:"Matematika",   u:"M. Aliyev",    cls:"lb-math"}, {n:"Arab tili",    u:"Z. Rahimova",  cls:"lb-arb"},  {n:"Sun'iy Int.", u:"B. Toshmatov", cls:"lb-ai"},   {n:"Notiqlik",     u:"S. Karimova",  cls:"lb-notq"}, {n:"Informatika",  u:"B. Toshmatov", cls:"lb-it"},   {n:"Zakovat",     u:"H. Umarov",    cls:"lb-zak"}],
+    ["09:00–09:45", {n:"Arab tili",    u:"Z. Rahimova",  cls:"lb-arb"},  {n:"Matematika",   u:"M. Aliyev",    cls:"lb-math"}, {n:"Informatika",  u:"B. Toshmatov", cls:"lb-it"},   {n:"Sun'iy Int.", u:"B. Toshmatov", cls:"lb-ai"},   {n:"Matematika",   u:"M. Aliyev",    cls:"lb-math"}, {n:"J. Tarbiya",  u:"N. Yusupov",   cls:"lb-pe"}],
+    ["10:00–10:45", {n:"Informatika",  u:"B. Toshmatov", cls:"lb-it"},   {n:"Sun'iy Int.", u:"B. Toshmatov", cls:"lb-ai"},   {n:"Arab tili",    u:"Z. Rahimova",  cls:"lb-arb"},  {n:"Informatika",  u:"B. Toshmatov", cls:"lb-it"},   {n:"Arab tili",    u:"Z. Rahimova",  cls:"lb-arb"},  {n:"Matematika",  u:"M. Aliyev",    cls:"lb-math"}],
+    ["11:30–12:15", {n:"Sun'iy Int.", u:"B. Toshmatov", cls:"lb-ai"},   {n:"Notiqlik",     u:"S. Karimova",  cls:"lb-notq"},{n:"Matematika",   u:"M. Aliyev",    cls:"lb-math"}, {n:"Arab tili",    u:"Z. Rahimova",  cls:"lb-arb"},  {n:"Notiqlik",     u:"S. Karimova",  cls:"lb-notq"}, null],
+    ["12:30–13:15", {n:"Zakovat",     u:"H. Umarov",    cls:"lb-zak"},  {n:"Informatika",  u:"B. Toshmatov", cls:"lb-it"},   {n:"Zakovat",      u:"H. Umarov",    cls:"lb-zak"},  {n:"Zakovat",      u:"H. Umarov",    cls:"lb-zak"},  {n:"Zakovat",      u:"H. Umarov",    cls:"lb-zak"},  null],
+    ["13:30–14:15", {n:"Notiqlik",    u:"S. Karimova",  cls:"lb-notq"}, {n:"Zakovat",      u:"H. Umarov",    cls:"lb-zak"},  {n:"Notiqlik",     u:"S. Karimova",  cls:"lb-notq"},{n:"J. Tarbiya",   u:"N. Yusupov",   cls:"lb-pe"},   null,                                                    null],
+  ],
+};
+
+// ===================================================================
+// 2. YORDAMCHI FUNKSIYALAR
+// ===================================================================
+
+// Initials (ism harflari)
+function initials(ism){
+  return ism.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+}
+
+// Toast bildirishnoma
+function toast(xabar, tur='g'){
+  const t = document.getElementById('toast');
+  const map = {
+    g:{bg:'#ecfdf5',border:'#10b981',color:'#065f46',icon:'fa-circle-check'},
+    r:{bg:'#fff1f2',border:'#ef4444',color:'#991b1b',icon:'fa-circle-xmark'},
+    b:{bg:'#eff6ff',border:'#3b82f6',color:'#1e40af',icon:'fa-circle-info'},
+    y:{bg:'#fffbeb',border:'#f59e0b',color:'#92400e',icon:'fa-triangle-exclamation'},
+  };
+  const c = map[tur]||map.g;
+  t.style.cssText = `display:block;background:${c.bg};border:1.5px solid ${c.border};color:${c.color};padding:13px 20px;border-radius:14px;font-size:13.5px;font-weight:600;position:fixed;bottom:24px;right:24px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.13);animation:slideUp .3s ease;`;
+  t.innerHTML = `<i class="fa-solid ${c.icon} mr-2"></i>${xabar}`;
+  clearTimeout(t._t);
+  t._t = setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>{t.style.display='none';t.style.opacity='1';},300);},3200);
+}
+
+// Sonni formatlash
+function fmt(n){return n.toLocaleString('uz-UZ');}
+
+// Ball daraja
+function daraja(ball){
+  if(ball>=28) return '<span class="bdg bdg-g">🌟 A\'lo</span>';
+  if(ball>=21) return '<span class="bdg bdg-b">👍 Yaxshi</span>';
+  if(ball>=14) return '<span class="bdg bdg-y">📚 Qoniqarli</span>';
+  return '<span style="background:#fee2e2;color:#b91c1c;" class="bdg">⚠️ Past</span>';
+}
+
+// ===================================================================
+// 3. NAVIGATSIYA
+// ===================================================================
+function switchTo(secId){
+  document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const sec = document.getElementById('sec-'+secId);
+  if(sec) sec.classList.add('active');
+  const btn = document.querySelector(`.nav-btn[data-sec="${secId}"]`);
+  if(btn) btn.classList.add('active');
+  // Har bir bo'limni ochganda tegishli renderni chaqiramiz
+  if(secId==='students')     renderStudents('all');
+  if(secId==='journal')      renderJournal('all');
+  if(secId==='leaderboard')  renderLeaderboard('daily');
+  if(secId==='timetable')    renderTimetable();
+}
+
+document.querySelectorAll('.nav-btn[data-sec]').forEach(btn=>{
+  btn.addEventListener('click',()=>switchTo(btn.dataset.sec));
+});
+
+// ===================================================================
+// 4. O'QUVCHILAR BAZASI
+// ===================================================================
+function renderStudents(filter){
+  const data = filter==='all'? STUDENTS : STUDENTS.filter(s=>s.sinf===parseInt(filter));
+  const tbody = document.getElementById('stuTbody');
+  tbody.innerHTML = data.map((s,i)=>{
+    const tolovBadge = s.paid
+      ? `<span class="bdg bdg-g"><i class="fa-solid fa-circle-check" style="font-size:10px;"></i> To'langan</span>`
+      : `<span class="bdg bdg-r"><i class="fa-solid fa-circle-xmark" style="font-size:10px;"></i> Qarzdor</span>`;
+    const btnCls = s.paid ? 'btn-cancel-pay' : 'btn-confirm';
+    const btnTxt = s.paid ? '<i class="fa-solid fa-rotate-left mr-1"></i>Bekor' : '<i class="fa-solid fa-check mr-1"></i>Tasdiqlash';
+    const bg = AVBG[s.id % AVBG.length];
     return `
-      <tr>
+      <tr id="stu-row-${s.id}">
+        <td style="color:var(--g5);font-weight:600;">${i+1}</td>
         <td>
-          <div class="flex items-center gap-2.5">
-            <div class="avatar" style="background:${bg};">${initials}</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="av" style="background:${bg};">${initials(s.ism)}</div>
             <div>
-              <p class="font-semibold text-sm" style="color:var(--gray-800);">${s.ism}</p>
-              <p class="text-xs" style="color:var(--gray-400);">${s.ota}</p>
+              <p style="font-weight:600;font-size:13.5px;color:var(--g8);">${s.ism}</p>
+              <p style="font-size:11.5px;color:var(--g4);">ID: #${String(s.id).padStart(3,'0')}</p>
             </div>
           </div>
         </td>
-        <td><span class="badge badge-gray">${s.sinfHarf}</span></td>
-        <td class="text-xs" style="color:var(--gray-600);">${s.ota}</td>
-        <td class="text-xs" style="color:var(--gray-600);">${s.telefon}</td>
-        <td><span class="font-bold text-sm" style="${reytingColor}">${s.reyting}</span></td>
-        <td><span class="text-sm font-semibold" style="${davomatColor}">${s.davomat}%</span></td>
-        <td>${tolovBadge}</td>
+        <td><span class="bdg bdg-p">${s.sinf}-sinf</span></td>
+        <td style="font-size:13px;color:var(--g6);">${s.ota}</td>
+        <td style="font-size:13px;color:var(--g6);">${s.tel}</td>
+        <td style="font-weight:700;color:var(--md);font-size:13px;">${fmt(s.tolov)} so'm</td>
+        <td id="stu-status-${s.id}">${tolovBadge}</td>
         <td>
-          <div class="flex gap-1.5">
-            <button class="btn-icon" style="width:28px;height:28px;font-size:11px;" title="Ko'rish" onclick="showToast('${s.ism} profili ochilmoqda…','info')">
-              <i class="fa-solid fa-eye"></i>
-            </button>
-            <button class="btn-icon" style="width:28px;height:28px;font-size:11px;" title="Tahrirlash" onclick="showToast('${s.ism} tahrirlanmoqda…','info')">
-              <i class="fa-solid fa-pen"></i>
-            </button>
-          </div>
+          <button class="btn-sm ${btnCls}" id="stu-btn-${s.id}"
+            onclick="togglePayment(${s.id})">${btnTxt}</button>
         </td>
-      </tr>
-    `;
+      </tr>`;
   }).join('');
 }
 
-// Moliya bo'limidagi o'quvchilar to'lov jadvali
-const financeStudents = [
-  { ism: 'Asadbek Olimov',    sinf: '7-A',  shartnoma: 500000, tolangan: 500000  },
-  { ism: 'Mohira Xasanova',   sinf: '9-B',  shartnoma: 500000, tolangan: 500000  },
-  { ism: 'Jasur Toshmatov',   sinf: '11-A', shartnoma: 500000, tolangan: 500000  },
-  { ism: 'Zulfiya Karimova',  sinf: '5-A',  shartnoma: 500000, tolangan: 0       },
-  { ism: 'Asilbek Normatov',  sinf: '8-A',  shartnoma: 500000, tolangan: 300000  },
-  { ism: 'Dilnoza Yusupova',  sinf: '6-A',  shartnoma: 500000, tolangan: 500000  },
-  { ism: 'Sherzod Abdullayev',sinf: '10-A', shartnoma: 500000, tolangan: 0       },
-  { ism: 'Bekzod Rahimov',    sinf: '4-A',  shartnoma: 500000, tolangan: 200000  },
-];
+// To'lov statusini almashtirish
+function togglePayment(id){
+  const s = STUDENTS.find(x=>x.id===id);
+  if(!s) return;
+  s.paid = !s.paid;
+  // Jadvalda faqat shu qatorni yangilaymiz
+  const statusCell = document.getElementById('stu-status-'+id);
+  const btn = document.getElementById('stu-btn-'+id);
+  if(s.paid){
+    if(statusCell) statusCell.innerHTML = `<span class="bdg bdg-g"><i class="fa-solid fa-circle-check" style="font-size:10px;"></i> To'langan</span>`;
+    if(btn){ btn.className='btn-sm btn-cancel-pay'; btn.innerHTML='<i class="fa-solid fa-rotate-left mr-1"></i>Bekor'; }
+    toast(`${s.ism} — to'lov tasdiqlandi! 🎉`,'g');
+  } else {
+    if(statusCell) statusCell.innerHTML = `<span class="bdg bdg-r"><i class="fa-solid fa-circle-xmark" style="font-size:10px;"></i> Qarzdor</span>`;
+    if(btn){ btn.className='btn-sm btn-confirm'; btn.innerHTML='<i class="fa-solid fa-check mr-1"></i>Tasdiqlash'; }
+    toast(`${s.ism} — to'lov bekor qilindi`,'r');
+  }
+  // Deadline lock qayta tekshiruv
+  applyDeadlineLock();
+  // Dashboard top listni yangilash
+  renderDashTopList();
+}
 
-function renderFinanceStudents() {
-  const tbody = document.getElementById('financeStudentsTbody');
-  if (!tbody) return;
-  tbody.innerHTML = financeStudents.map((s, i) => {
-    const qoldiq = s.shartnoma - s.tolangan;
-    const initials = s.ism.split(' ').map(w => w[0]).join('').slice(0, 2);
-    const bg = avatarColors[i % avatarColors.length];
-    let statusBadge;
-    if (qoldiq === 0) {
-      statusBadge = `<span class="badge badge-green"><i class="fa-solid fa-check text-xs"></i>To'langan</span>`;
-    } else if (s.tolangan > 0) {
-      statusBadge = `<span class="badge badge-yellow"><i class="fa-solid fa-clock text-xs"></i>Qisman</span>`;
-    } else {
-      statusBadge = `<span class="badge badge-red"><i class="fa-solid fa-xmark text-xs"></i>Qarzdor</span>`;
-    }
+// Filtr
+document.getElementById('stuFilter').addEventListener('click',e=>{
+  const btn = e.target.closest('[data-f]');
+  if(!btn) return;
+  document.querySelectorAll('#stuFilter [data-f]').forEach(b=>{
+    b.style.background='var(--g1)'; b.style.color='var(--g7)';
+  });
+  btn.style.background='var(--m)'; btn.style.color='white';
+  renderStudents(btn.dataset.f);
+});
+
+// ===================================================================
+// 5. BAHOLASH JURNALI
+// ===================================================================
+function renderJournal(filter){
+  const data = filter==='all'? STUDENTS : STUDENTS.filter(s=>s.sinf===parseInt(filter));
+  const tbody = document.getElementById('jrnTbody');
+  tbody.innerHTML = data.map((s)=>{
+    const locked = isLocked(s);
+    const tolovBadge = s.paid
+      ? `<span class="bdg bdg-g" style="font-size:10.5px;">✓ To'landi</span>`
+      : `<span class="bdg bdg-r" style="font-size:10.5px;">✗ Qarzdor</span>`;
+    const disAttr = locked ? 'disabled' : '';
+    const rowCls  = locked ? 'locked-row' : '';
+    const holatCell = locked
+      ? `<span style="font-size:18px;" title="Blokli: Qarzdor + Deadline o'tgan">🔒</span>`
+      : `<span style="font-size:18px;" title="Baholash ochiq">✏️</span>`;
+    const total = s.xulq + s.uy + s.ish;
+    const totalColor = total>=25?'var(--md)': total>=18?'#2563eb': total>=12?'#d97706':'var(--r)';
+    const bg = AVBG[s.id % AVBG.length];
     return `
-      <tr>
+      <tr class="${rowCls}" id="jrn-row-${s.id}">
         <td>
-          <div class="flex items-center gap-2">
-            <div class="avatar" style="width:26px;height:26px;font-size:9px;background:${bg};">${initials}</div>
-            <span class="text-xs font-medium">${s.ism}</span>
+          <div style="display:flex;align-items:center;gap:9px;">
+            <div class="av" style="background:${bg};">${initials(s.ism)}</div>
+            <span style="font-weight:600;font-size:13px;color:var(--g8);">${s.ism}</span>
           </div>
         </td>
-        <td><span class="badge badge-gray">${s.sinf}</span></td>
-        <td class="text-xs font-semibold" style="color:var(--gray-700);">${s.shartnoma.toLocaleString()}</td>
-        <td class="text-xs font-semibold" style="color:var(--mint-dark);">${s.tolangan.toLocaleString()}</td>
-        <td class="text-xs font-bold" style="color:${qoldiq > 0 ? 'var(--red)' : 'var(--mint-dark)'};">${qoldiq.toLocaleString()}</td>
-        <td>${statusBadge}</td>
-      </tr>
-    `;
+        <td><span class="bdg bdg-p">${s.sinf}-sinf</span></td>
+        <td>${tolovBadge}</td>
+        <td style="text-align:center;">
+          <input type="number" class="score-inp" id="jrn-x-${s.id}"
+            min="0" max="10" value="${s.xulq}" ${disAttr}
+            oninput="calcTotal(${s.id})"/>
+        </td>
+        <td style="text-align:center;">
+          <input type="number" class="score-inp" id="jrn-u-${s.id}"
+            min="0" max="10" value="${s.uy}" ${disAttr}
+            oninput="calcTotal(${s.id})"/>
+        </td>
+        <td style="text-align:center;">
+          <input type="number" class="score-inp" id="jrn-i-${s.id}"
+            min="0" max="10" value="${s.ish}" ${disAttr}
+            oninput="calcTotal(${s.id})"/>
+        </td>
+        <td style="text-align:center;">
+          <span id="jrn-total-${s.id}" style="font-size:17px;font-weight:900;color:${totalColor};">${total}</span>
+          <span style="font-size:11px;color:var(--g4);">/30</span>
+        </td>
+        <td style="text-align:center;">${holatCell}</td>
+      </tr>`;
   }).join('');
 }
 
-// ===== NAVIGATSIYA MANTIQ =====
-// Barcha menyu tugmalari va kontent bo'limlari
-const navBtns = document.querySelectorAll('.nav-btn[data-section]');
-const sections = document.querySelectorAll('.content-section');
-
-function switchTo(sectionId) {
-  // Barcha bo'limlarni yashiramiz
-  sections.forEach(s => s.classList.remove('active'));
-  // Barcha tugmalardan active klassini olamiz
-  navBtns.forEach(b => b.classList.remove('active'));
-  // Tanlangan bo'limni ko'rsatamiz
-  const target = document.getElementById('section-' + sectionId);
-  if (target) target.classList.add('active');
-  // Bosilgan tugmani active qilamiz
-  const btn = document.querySelector(`.nav-btn[data-section="${sectionId}"]`);
-  if (btn) btn.classList.add('active');
-}
-
-// Har bir menyu tugmasiga click qo'shamiz
-navBtns.forEach(btn => {
-  btn.addEventListener('click', () => switchTo(btn.dataset.section));
-});
-
-// ===== TOAST BILDIRISHNOMA FUNKSIYASI =====
-function showToast(xabar, tur) {
-  // tur: 'success' | 'error' | 'info' | 'warning'
-  const toast = document.getElementById('toast');
-  const config = {
-    success: { bg: '#ecfdf5', border: '#10b981', color: '#065f46', icon: 'fa-circle-check' },
-    error:   { bg: '#fff1f2', border: '#ef4444', color: '#991b1b', icon: 'fa-circle-xmark' },
-    info:    { bg: '#eff6ff', border: '#3b82f6', color: '#1e40af', icon: 'fa-circle-info'  },
-    warning: { bg: '#fffbeb', border: '#f59e0b', color: '#92400e', icon: 'fa-triangle-exclamation' },
-  };
-  const c = config[tur] || config.info;
-  toast.style.cssText = `
-    display:block;background:${c.bg};border:1.5px solid ${c.border};
-    color:${c.color};padding:13px 20px;border-radius:14px;
-    font-size:13.5px;font-weight:600;position:fixed;
-    bottom:24px;right:24px;z-index:9999;
-    box-shadow:0 8px 24px rgba(0,0,0,0.12);
-    animation:slideUp 0.3s ease;
-  `;
-  toast.innerHTML = `<i class="fa-solid ${c.icon} mr-2"></i>${xabar}`;
-  // 3 soniyadan keyin yashiramiz
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    toast.style.transition = 'opacity 0.3s';
-    setTimeout(() => { toast.style.display = 'none'; toast.style.opacity = '1'; }, 300);
-  }, 3000);
-}
-
-// ===== FILTR TUGMALAR =====
-// Sinflar bo'yicha filtr
-const filterContainer = document.getElementById('classFilter');
-if (filterContainer) {
-  filterContainer.addEventListener('click', function(e) {
-    const btn = e.target.closest('.filter-btn');
-    if (!btn) return;
-    // Barcha tugmalardan active olamiz
-    filterContainer.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    // O'quvchilarni filtrlash
-    renderStudents(btn.dataset.filter);
+// Real-vaqt total hisoblash
+function calcTotal(id){
+  const s = STUDENTS.find(x=>x.id===id);
+  if(!s) return;
+  const xInp = document.getElementById('jrn-x-'+id);
+  const uInp = document.getElementById('jrn-u-'+id);
+  const iInp = document.getElementById('jrn-i-'+id);
+  if(!xInp||!uInp||!iInp) return;
+  // Qiymatni cheklash
+  [xInp,uInp,iInp].forEach(inp=>{
+    let v = parseInt(inp.value)||0;
+    if(v<0) v=0; if(v>10) v=10;
+    inp.value=v;
   });
+  s.xulq = parseInt(xInp.value)||0;
+  s.uy   = parseInt(uInp.value)||0;
+  s.ish  = parseInt(iInp.value)||0;
+  const total = s.xulq + s.uy + s.ish;
+  const totalSpan = document.getElementById('jrn-total-'+id);
+  if(totalSpan){
+    const c = total>=25?'var(--md)': total>=18?'#2563eb': total>=12?'#d97706':'var(--r)';
+    totalSpan.style.color = c;
+    totalSpan.textContent = total;
+  }
+  // Leaderboard ham yangilash
+  renderLeaderboard(currentPeriod);
+  renderDashTopList();
 }
 
-// Bar chart filter tugmalar
-document.querySelectorAll('.filter-btn').forEach(btn => {
-  if (!btn.closest('#classFilter')) {
-    btn.addEventListener('click', function() {
-      this.closest('.flex').querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-      showToast(this.textContent.trim() + ' bo\'yicha ko\'rsatilmoqda', 'info');
+// Qulf tekshiruvi
+function isLocked(s){
+  return (!s.paid) && (SIM_DAY > DEADLINE);
+}
+
+// Deadline lock — barcha journal qatorlarini yangilaydi
+function applyDeadlineLock(){
+  // Sim day sinxron
+  const n1 = document.getElementById('simDay');
+  const n2 = document.getElementById('simDay2');
+  if(n1) SIM_DAY = parseInt(n1.value)||1;
+  // n2 bilan sinxron
+  if(n2 && document.activeElement!==n2) n2.value = SIM_DAY;
+
+  // Journal qatorlarini yangilash (agar journal ko'rinayotgan bo'lsa)
+  STUDENTS.forEach(s=>{
+    const locked = isLocked(s);
+    const row = document.getElementById('jrn-row-'+s.id);
+    if(!row) return;
+    const inputs = ['jrn-x-','jrn-u-','jrn-i-'].map(p=>document.getElementById(p+s.id));
+    inputs.forEach(inp=>{
+      if(!inp) return;
+      inp.disabled = locked;
     });
+    if(locked){
+      row.classList.add('locked-row');
+    } else {
+      row.classList.remove('locked-row');
+    }
+    // Holat ikonkasi
+    const lastCell = row.cells[row.cells.length-1];
+    if(lastCell){
+      lastCell.innerHTML = locked
+        ? `<span style="font-size:18px;" title="Blokli: Qarzdor + Deadline o'tgan">🔒</span>`
+        : `<span style="font-size:18px;" title="Baholash ochiq">✏️</span>`;
+    }
+  });
+
+  // Deadline ko'rsatkichi yangilash
+  const deadlineDisp = document.getElementById('deadlineDisp');
+  if(deadlineDisp) deadlineDisp.textContent = DEADLINE;
+
+  // Deadline alert
+  const alertEl = document.getElementById('deadlineAlert');
+  if(alertEl){
+    if(SIM_DAY > DEADLINE){
+      alertEl.style.display='block';
+      alertEl.style.background='#fff1f2';
+      alertEl.style.border='1.5px solid #ef4444';
+      alertEl.style.color='#b91c1c';
+      alertEl.innerHTML=`<i class="fa-solid fa-lock mr-1.5"></i>Deadline o'tdi! (${SIM_DAY}-kun > ${DEADLINE}-kun). Qarzdorlar blokda.`;
+    } else {
+      alertEl.style.display='block';
+      alertEl.style.background='var(--mx)';
+      alertEl.style.border='1.5px solid var(--m)';
+      alertEl.style.color='var(--md)';
+      alertEl.innerHTML=`<i class="fa-solid fa-unlock mr-1.5"></i>Deadline hali kelmadi. (${SIM_DAY}-kun, Deadline: ${DEADLINE}-kun)`;
+    }
   }
-});
 
-// ===== MODAL YOPISH (OVERLAY BOSGANDA) =====
-document.getElementById('addStudentModal').addEventListener('click', function(e) {
-  if (e.target === this) this.classList.remove('open');
-});
-
-// ===== MODAL ORQALI YANGI O'QUVCHI QO'SHISH =====
-function addStudentFromModal() {
-  document.getElementById('addStudentModal').classList.remove('open');
-  showToast('Yangi o\'quvchi muvaffaqiyatli qo\'shildi!', 'success');
+  // Sozlamalar sahifasidagi sim status
+  const simStatus = document.getElementById('simStatus');
+  if(simStatus){
+    if(SIM_DAY > DEADLINE){
+      simStatus.style.background='rgba(239,68,68,.15)';
+      simStatus.style.color='#fca5a5';
+      simStatus.innerHTML = `🔒 Joriy kun <strong>${SIM_DAY}</strong> — Deadline (<strong>${DEADLINE}</strong>) o'tib ketgan! Qarzdor o'quvchilarning jurnali blokda.`;
+    } else {
+      simStatus.style.background='rgba(16,185,129,.15)';
+      simStatus.style.color='#6ee7b7';
+      simStatus.innerHTML = `✅ Joriy kun <strong>${SIM_DAY}</strong> — Deadline (<strong>${DEADLINE}</strong>) hali kelmagan. Barcha inputlar ochiq.`;
+    }
+  }
 }
 
-// ===== GLOBAL QIDIRUV =====
-document.getElementById('globalSearch').addEventListener('input', function() {
-  const q = this.value.toLowerCase();
-  if (!q) return;
-  // Aktiv bo'limdagi jadval qatorlarini filtrlash
-  const aktifBolim = document.querySelector('.content-section.active');
-  if (!aktifBolim) return;
-  aktifBolim.querySelectorAll('tbody tr').forEach(tr => {
-    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+// Simday sinxron (sozlamalar sahifasidan)
+function syncSimDay(el){
+  SIM_DAY = parseInt(el.value)||1;
+  const n1 = document.getElementById('simDay');
+  if(n1) n1.value = SIM_DAY;
+}
+
+// Journal filtri
+document.getElementById('jrnFilter').addEventListener('click',e=>{
+  const btn = e.target.closest('[data-jf]');
+  if(!btn) return;
+  document.querySelectorAll('#jrnFilter [data-jf]').forEach(b=>{
+    b.style.background='var(--g1)'; b.style.color='var(--g7)';
   });
+  btn.style.background='var(--m)'; btn.style.color='white';
+  renderJournal(btn.dataset.jf);
 });
 
-document.getElementById('globalSearch').addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    this.value = '';
-    // Barcha yashirilgan qatorlarni ko'rsatamiz
-    document.querySelectorAll('tbody tr').forEach(tr => tr.style.display = '');
+// Jurnalni saqlash (simulyatsiya)
+function saveJournal(){
+  toast('Baholash jurnali muvaffaqiyatli saqlandi! ✅','g');
+}
+
+// ===================================================================
+// 6. DEADLINE SOZLAMA
+// ===================================================================
+function updateDeadline(){
+  const inp = document.getElementById('deadlineInput');
+  if(!inp) return;
+  let v = parseInt(inp.value)||5;
+  if(v<1) v=1; if(v>31) v=31;
+  DEADLINE = v;
+  applyDeadlineLock();
+}
+
+function saveDeadline(){
+  const inp = document.getElementById('deadlineInput');
+  if(inp){ let v=parseInt(inp.value)||5; if(v<1)v=1; if(v>31)v=31; DEADLINE=v; }
+  applyDeadlineLock();
+  toast(`Deadline ${DEADLINE}-sana sifatida saqlandi!`,'g');
+}
+
+// ===================================================================
+// 7. REYTING (LEADERBOARD)
+// ===================================================================
+let currentPeriod = 'daily';
+
+// Haftalik va oylik multiplier (simulyatsiya)
+const periodMult = { daily:1, weekly:5, monthly:20 };
+const periodLabel = { daily:'Kunlik', weekly:'Haftalik', monthly:'Oylik' };
+const periodColors = ['#fbbf24','#94a3b8','#f97316'];
+const medalEmoji = ['🥇','🥈','🥉'];
+
+function getSortedStudents(period){
+  const m = periodMult[period]||1;
+  return [...STUDENTS]
+    .map(s=>({...s, jamiBall:(s.xulq+s.uy+s.ish)*m}))
+    .sort((a,b)=>b.jamiBall-a.jamiBall);
+}
+
+function renderLeaderboard(period){
+  currentPeriod = period;
+  const sorted = getSortedStudents(period);
+
+  // Period tugmalarini yangilash
+  document.querySelectorAll('#lbPeriod button').forEach(b=>{
+    if(b.dataset.period===period){ b.className='btn-pr'; }
+    else { b.className='btn-out'; }
+  });
+
+  // Label
+  const lbl = document.getElementById('lbPeriodLabel');
+  if(lbl) lbl.textContent = periodLabel[period];
+
+  // Podium (top 3)
+  const podium = document.getElementById('podium');
+  if(podium){
+    const order = [1,0,2]; // 2-o'rin chap, 1-o'rin o'rta, 3-o'rin o'ng
+    const heights = ['h-28','h-20','h-16'];
+    const podiumCls = ['lb-row-1','lb-row-2','lb-row-3'];
+    podium.innerHTML = order.map((rank,pos)=>{
+      const s = sorted[rank];
+      if(!s) return '<div></div>';
+      const bg = AVBG[s.id % AVBG.length];
+      const isCenter = pos===1;
+      return `
+        <div class="card text-center ${podiumCls[rank]}" style="${isCenter?'transform:scale(1.05);box-shadow:0 8px 32px rgba(16,185,129,.2);':''}">
+          <p style="font-size:42px;margin-bottom:4px;">${medalEmoji[rank]}</p>
+          <div style="width:56px;height:56px;border-radius:50%;background:${bg};display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:white;margin:0 auto 10px;">
+            ${initials(s.ism)}
+          </div>
+          <p style="font-size:14px;font-weight:700;color:var(--g8);">${s.ism}</p>
+          <p style="font-size:12px;color:var(--g4);margin:2px 0 8px;">${s.sinf}-sinf</p>
+          <p style="font-size:26px;font-weight:900;color:${periodColors[rank]};">${s.jamiBall}</p>
+          <p style="font-size:11px;color:var(--g4);">ball (${periodLabel[period]})</p>
+          <div style="margin-top:10px;display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">
+            <span class="bdg bdg-g" style="font-size:10.5px;">Xulq: ${s.xulq}</span>
+            <span class="bdg bdg-b" style="font-size:10.5px;">U.V: ${s.uy}</span>
+            <span class="bdg bdg-p" style="font-size:10.5px;">Ish: ${s.ish}</span>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // To'liq jadval
+  const tbody = document.getElementById('lbTbody');
+  if(!tbody) return;
+  tbody.innerHTML = sorted.map((s,i)=>{
+    const bg = AVBG[s.id % AVBG.length];
+    const orin = i===0?'🥇':i===1?'🥈':i===2?'🥉':`<span style="font-weight:700;color:var(--g5);">${i+1}</span>`;
+    return `
+      <tr style="${i<3?'background:'+['#fffbeb','#f8fafc','#fff7ed'][i]+';':''}" >
+        <td style="text-align:center;font-size:17px;">${orin}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:9px;">
+            <div class="av" style="background:${bg};">${initials(s.ism)}</div>
+            <div>
+              <p style="font-weight:600;font-size:13px;color:var(--g8);">${s.ism}</p>
+              <p style="font-size:11px;color:var(--g4);">ID: #${String(s.id).padStart(3,'0')}</p>
+            </div>
+          </div>
+        </td>
+        <td><span class="bdg bdg-p">${s.sinf}-sinf</span></td>
+        <td style="text-align:center;font-weight:600;color:var(--md);">${s.xulq}</td>
+        <td style="text-align:center;font-weight:600;color:#1d4ed8;">${s.uy}</td>
+        <td style="text-align:center;font-weight:600;color:#7c3aed;">${s.ish}</td>
+        <td style="text-align:center;">
+          <span style="font-size:18px;font-weight:900;color:${i===0?'#d97706':i===1?'#94a3b8':i===2?'#f97316':'var(--g7)'};">${s.jamiBall}</span>
+        </td>
+        <td style="text-align:center;">${daraja(s.xulq+s.uy+s.ish)}</td>
+      </tr>`;
+  }).join('');
+}
+
+// Period tugmalar
+document.getElementById('lbPeriod').addEventListener('click',e=>{
+  const btn = e.target.closest('[data-period]');
+  if(!btn) return;
+  renderLeaderboard(btn.dataset.period);
+});
+
+// ===================================================================
+// 8. DARS JADVALI
+// ===================================================================
+function renderTimetable(){
+  const sinf = parseInt(document.getElementById('ttSinf').value)||7;
+  const data = TIMETABLE[sinf]||TIMETABLE[7];
+  const days = ['Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'];
+
+  let html = `<div class="tt-grid">
+    <div style="background:var(--g0);border-radius:10px;display:flex;align-items:center;justify-content:center;padding:10px 4px;font-size:11px;font-weight:700;color:var(--g4);">Vaqt</div>
+    ${days.map(d=>`<div class="tt-hdr">${d}</div>`).join('')}`;
+
+  data.forEach((row,ri)=>{
+    const [vaqt, ...cells] = row;
+    html += `<div class="tt-time" style="padding:6px 2px;text-align:center;">${vaqt.replace('–','<br>')}</div>`;
+    cells.forEach(cell=>{
+      if(!cell){
+        html += `<div class="lb-empty"></div>`;
+      } else {
+        html += `<div class="lb ${cell.cls}">
+          <p style="font-size:11px;font-weight:700;color:var(--g8);">${cell.n}</p>
+          <p style="font-size:10.5px;color:var(--g5);margin-top:3px;">${cell.u}</p>
+        </div>`;
+      }
+    });
+    // Tanaffus chizig'i
+    if(ri===2){
+      html += `<div style="grid-column:1/-1;text-align:center;padding:7px;font-size:11px;font-weight:600;color:var(--g4);background:var(--g0);border-radius:8px;margin:2px 0;">☕ Katta tanaffus — 11:00–11:30</div>`;
+    }
+  });
+
+  html += '</div>';
+  document.getElementById('ttGrid').innerHTML = html;
+}
+
+// ===================================================================
+// 9. DASHBOARD TOP LIST
+// ===================================================================
+function renderDashTopList(){
+  const sorted = getSortedStudents('daily').slice(0,5);
+  const cont = document.getElementById('dashTopList');
+  if(!cont) return;
+  cont.innerHTML = sorted.map((s,i)=>{
+    const bg = AVBG[s.id % AVBG.length];
+    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    const barW = Math.round((s.jamiBall/30)*100);
+    return `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:12px;background:${i<3?['#fffbeb','#f8fafc','#fff7ed'][i]:'var(--g0)'};border:1px solid ${i<3?['#fbbf24','#e2e8f0','#fed7aa'][i]:'var(--g2)'};">
+        <div style="width:28px;text-align:center;font-size:16px;">${medal||`<span style="font-weight:700;color:var(--g4);">${i+1}</span>`}</div>
+        <div class="av" style="background:${bg};">${initials(s.ism)}</div>
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <p style="font-size:13px;font-weight:600;color:var(--g8);">${s.ism}</p>
+            <p style="font-size:13px;font-weight:800;color:var(--md);">${s.jamiBall}<span style="font-size:10px;color:var(--g4);">/30</span></p>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+            <span class="bdg bdg-p" style="font-size:10px;">${s.sinf}-sinf</span>
+            <div class="pbar" style="flex:1;">
+              <div class="pbar-fill" style="width:${barW}%;background:${i===0?'#f59e0b':i===1?'#94a3b8':i===2?'#f97316':'var(--m)'};"></div>
+            </div>
+            <span style="font-size:10.5px;font-weight:600;color:var(--g5);">${barW}%</span>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ===================================================================
+// 10. GLOBAL QIDIRUV
+// ===================================================================
+document.getElementById('globalSearch').addEventListener('input',function(){
+  const q = this.value.toLowerCase();
+  if(!q){ return; }
+  const aktif = document.querySelector('.content-section.active');
+  if(!aktif) return;
+  aktif.querySelectorAll('tbody tr').forEach(tr=>{
+    tr.style.display = tr.textContent.toLowerCase().includes(q)?'':'none';
+  });
+});
+document.getElementById('globalSearch').addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    this.value='';
+    document.querySelectorAll('tbody tr').forEach(tr=>tr.style.display='');
   }
 });
 
-// ===== BILDIRISHNOMALAR TUGMASI =====
-document.getElementById('notifBtn').addEventListener('click', function() {
-  showToast('7 ta yangi bildirishnoma mavjud!', 'warning');
-});
-
-// ===== SAHIFA YUKLANGANDA JADVALLARNI TO'LDIRISH =====
-document.addEventListener('DOMContentLoaded', function() {
-  // O'quvchilar jadvalini to'ldiramiz
+// ===================================================================
+// 11. SAHIFA YUKLANGANDA ISHGA TUSHIRISH
+// ===================================================================
+document.addEventListener('DOMContentLoaded',function(){
+  // O'quvchilar bazasini tayyorlaymiz (lekin ko'rinmaydi hali)
   renderStudents('all');
-  // Moliya bo'limidagi to'lov jadvalini to'ldiramiz
-  renderFinanceStudents();
+  // Dashboard top listni to'ldiramiz
+  renderDashTopList();
+  // Dars jadvalini tayyorlaymiz
+  renderTimetable();
+  // Deadline lock boshlang'ich holatini qo'llaymiz
+  applyDeadlineLock();
 });
 </script>
 </body>
